@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Xposed Macro Expand</string>
+    <string name="xposeddescription">Global text / macro expansion</string>
+
+</resources>
