@@ -3,6 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+    
+    <TextView
+        android:id="@+id/label_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:paddingBottom="20dp"
+        android:text="Enter text for macro and expansion. Regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, []) interfere with text parsing and are not allowed. Valid character symbols are (@, #, %, &amp;)." />
 
     <TextView
         android:id="@+id/label_actual"
