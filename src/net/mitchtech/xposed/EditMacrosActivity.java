@@ -93,10 +93,7 @@ public class EditMacrosActivity extends Activity {
 
     @Override
     protected void onPause() {
-        String json = new Gson().toJson(mList);
-        Editor prefsEditor = mPrefs.edit();
-        prefsEditor.putString("json", json);
-        prefsEditor.commit();
+        saveMacroList();
         super.onPause();
     }
 
@@ -156,6 +153,7 @@ public class EditMacrosActivity extends Activity {
                             mList.add(new MacroEntry(actualText, replacementText));
                             mListEmptyTextView.setVisibility(View.GONE);
                             mAdapter.notifyDataSetChanged();
+                            saveMacroList();
                         } else {    
                             Toast.makeText(
                                     EditMacrosActivity.this,
@@ -183,6 +181,7 @@ public class EditMacrosActivity extends Activity {
                             mListEmptyTextView.setVisibility(View.VISIBLE);
                         }
                         mAdapter.notifyDataSetChanged();
+                        saveMacroList();
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -202,6 +201,13 @@ public class EditMacrosActivity extends Activity {
         } else {
             return true;
         }
+    }
+    
+    private void saveMacroList() {
+        String json = new Gson().toJson(mList);
+        Editor prefsEditor = mPrefs.edit();
+        prefsEditor.putString("json", json);
+        prefsEditor.commit();
     }
 
     public static String getVersion(Context context) {
