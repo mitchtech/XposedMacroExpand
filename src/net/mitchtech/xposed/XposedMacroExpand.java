@@ -7,6 +7,7 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
@@ -48,21 +49,23 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
             return;
         }
 
+        // public void setText(CharSequence text, BufferType type)
         findAndHookMethod(EditText.class, "setText", CharSequence.class, TextView.BufferType.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam methodHookParam)
                             throws Throwable {
                         CharSequence actualText = (CharSequence) methodHookParam.args[0];
-
                         if (actualText != null) {
+                            // XposedBridge.log(TAG + ": setText(): " + actualText);
                             String replacementText = replaceText(actualText.toString());
                             methodHookParam.args[0] = replacementText;
-                        }
+                        } 
                     }
             });
         
-        findAndHookConstructor(EditText.class, Context.class, new XC_MethodHook() {
+        // common hook method for all edittext constructors
+        XC_MethodHook editTextMethodHook = new XC_MethodHook() {
 
             @Override
             protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
@@ -73,6 +76,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                     public void onFocusChange(View view, boolean hasFocus) {
                         if (!hasFocus) {
                             String actualText = editText.getText().toString();
+                            // XposedBridge.log(TAG + ": onFocusChange(): " + actualText);
                             String replacementText = replaceText(actualText);
                             // prevent stack overflow, only set text if modified
                             if (!actualText.equals(replacementText)) {
@@ -96,6 +100,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                     @Override
                     public void afterTextChanged(Editable editable) {
                         String actualText = editable.toString();
+                        // XposedBridge.log(TAG + ": afterTextChanged(): " + actualText);
                         String replacementText = replaceText(actualText);
                         // prevent stack overflow, only set text if modified
                         if (!actualText.equals(replacementText)) {
@@ -105,7 +110,16 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                     }
                 });
             }
-        });
+        };
+        
+        // public EditText(Context context) 
+        findAndHookConstructor(EditText.class, Context.class, editTextMethodHook);
+        
+        // public EditText(Context context, AttributeSet attrs)
+        findAndHookConstructor(EditText.class, Context.class, AttributeSet.class, editTextMethodHook);
+        
+        // public EditText(Context context, AttributeSet attrs, int defStyle)
+        findAndHookConstructor(EditText.class, Context.class, AttributeSet.class, int.class, editTextMethodHook);        
     }
 
     private String replaceText(String actualText) {
