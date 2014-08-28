@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:paddingBottom="20dp"
-        android:text="Enter text for macro and expansion. Regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, []) interfere with text parsing and are not allowed. Valid character symbols are (@, #, %, &amp;)." />
+        android:text="Enter text for macro and expansion. Regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, []) interfere with text parsing and are not allowed. Valid character symbols are (@, #, %, &amp;). Changes require reboot to activate." />
 
     <TextView
         android:id="@+id/label_actual"
