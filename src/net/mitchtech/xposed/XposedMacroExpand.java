@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -70,6 +71,10 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
             @Override
             protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                 final EditText editText = (EditText) methodHookParam.thisObject;
+                if (editText instanceof MultiAutoCompleteTextView) {
+                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");
+                    return;
+                }
                 editText.setOnFocusChangeListener(new OnFocusChangeListener() {
 
                     @Override
