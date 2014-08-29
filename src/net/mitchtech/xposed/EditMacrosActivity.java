@@ -112,10 +112,10 @@ public class EditMacrosActivity extends Activity {
                 addMacro();
                 return true;
 
-            case R.id.action_settings:
-                Intent settings = new Intent(this, MacroPreferenceActivity.class);
-                startActivity(settings);
-                return true;
+//            case R.id.action_settings:
+//                Intent settings = new Intent(this, MacroPreferenceActivity.class);
+//                startActivity(settings);
+//                return true;
 
             case R.id.action_exit:
                 this.finish();
@@ -146,7 +146,7 @@ public class EditMacrosActivity extends Activity {
                         String replacementText = replacement.getText().toString();
                         
                         // check for regex in text ($, ^, +, *, ., !, ?, |, \, (), {}, [])
-                        if (isTextRegexFree(actualText) && isTextRegexFree(replacementText)) {
+//                        if (isTextRegexFree(actualText) && isTextRegexFree(replacementText)) {
                             if (position > -1) {
                                 mList.remove(mListview.getItemAtPosition(position));
                             }
@@ -154,13 +154,13 @@ public class EditMacrosActivity extends Activity {
                             mListEmptyTextView.setVisibility(View.GONE);
                             mAdapter.notifyDataSetChanged();
                             saveMacroList();
-                        } else {    
-                            Toast.makeText(
-                                    EditMacrosActivity.this,
-                                    "Macros cannot contain regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, [])",
-                                    Toast.LENGTH_SHORT).show();
-                            editMacro(new MacroEntry(actualText, replacementText), position);
-                        }
+//                        } else {    
+//                            Toast.makeText(
+//                                    EditMacrosActivity.this,
+//                                    "Macros cannot contain regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, [])",
+//                                    Toast.LENGTH_SHORT).show();
+//                            editMacro(new MacroEntry(actualText, replacementText), position);
+//                        }
                         
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

@@ -27,6 +27,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
@@ -131,15 +133,16 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
         String replacementText = actualText.toString();
         if (replacements != null && !replacements.isEmpty()) {           
             for (MacroEntry replacement : replacements) {
-                if (isEnabled("prefCaseSensitive")) {
-                    // case sensitive replacement
-                    replacementText = replacementText.replaceAll(replacement.actual,
+//                if (isEnabled("prefCaseSensitive")) {
+//                     case sensitive replacement
+//                XposedBridge.log(TAG + ": replaceText(): " + Pattern.quote(replacement.actual));
+                    replacementText = replacementText.replaceAll(Pattern.quote(replacement.actual),
                             replacement.replacement);
-                } else {
-                    // "(?i)" used for case insensitive replace
-                    replacementText = replacementText.replaceAll(("(?i)" + replacement.actual),
-                            replacement.replacement);
-                }
+//                } else {
+//                    // "(?i)" used for case insensitive replace
+//                    replacementText = replacementText.replaceAll(("(?i)" + Pattern.quote(replacement.actual)),
+//                            replacement.replacement);
+//                }
             }
         }
         return replacementText;

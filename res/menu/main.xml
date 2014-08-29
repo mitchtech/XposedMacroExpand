@@ -6,10 +6,10 @@
         android:showAsAction="always"
         android:title="Add new macro"/>
     
-    <item android:id="@+id/action_settings"
-        android:showAsAction="ifRoom"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="Settings"/>
+<!--     <item android:id="@+id/action_settings" -->
+<!--         android:showAsAction="ifRoom" -->
+<!--         android:icon="@android:drawable/ic_menu_preferences" -->
+<!--         android:title="Settings"/> -->
         
     <item android:id="@+id/action_exit"
         android:showAsAction="never"
