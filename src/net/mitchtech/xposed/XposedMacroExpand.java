@@ -74,10 +74,10 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
             @Override
             protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                 final EditText editText = (EditText) methodHookParam.thisObject;
-                if (editText instanceof MultiAutoCompleteTextView) {
-                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");
-                    return;
-                }
+//                if (editText instanceof MultiAutoCompleteTextView) {
+//                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");
+//                    return;
+//                }
                 editText.setOnFocusChangeListener(new OnFocusChangeListener() {
 
                     @Override
@@ -87,7 +87,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                         } else {
                             if (!hasFocus) {
                                 String actualText = editText.getText().toString();
-                                // XposedBridge.log(TAG + ": onFocusChange(): " + actualText);
+                                XposedBridge.log(TAG + ": onFocusChange(): " + actualText);
                                 String replacementText = replaceText(actualText);
                                 // prevent stack overflow, only set text if modified
                                 if (!actualText.equals(replacementText)) {
@@ -112,15 +112,20 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                     @Override
                     public void afterTextChanged(Editable editable) {
                         if (isEnabled("prefIgnorePassword") && editText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                            // XposedBridge.log(TAG + ": onFocusChange(): password");
+                            // XposedBridge.log(TAG + ": afterTextChanged(): password");
                         } else {
                             String actualText = editable.toString();
-                            // XposedBridge.log(TAG + ": afterTextChanged(): " + actualText);
+                            XposedBridge.log(TAG + ": afterTextChanged(): " + actualText);
                             String replacementText = replaceText(actualText);
                             // prevent stack overflow, only set text if modified
                             if (!actualText.equals(replacementText)) {
                                 editText.setText(replacementText);
-                                editText.setSelection(editText.getText().length());
+                                // dont move cursor if field i MultiAutoCompleteTextView
+                                if (editText instanceof MultiAutoCompleteTextView) {
+                                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");s
+                                } else {                                    
+                                    editText.setSelection(editText.getText().length());
+                                }
                             }
                         }
                     }
