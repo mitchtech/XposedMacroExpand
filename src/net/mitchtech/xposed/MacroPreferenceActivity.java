@@ -20,19 +20,28 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import net.mitchtech.xposed.macroexpand.R;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MacroPreferenceActivity extends PreferenceActivity {
 
     private static final String TAG = MacroPreferenceActivity.class.getSimpleName();
     private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";
+    private static final int FORMAT_JSON = 0;
+    private static final int FORMAT_AHK = 1;
+    
     private static final int REQUEST_CODE = 6384; // onActivityResult request
     
     @Override
@@ -57,21 +66,40 @@ public class MacroPreferenceActivity extends PreferenceActivity {
 
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        exportMacros();
+                        // exportMacros(FORMAT_JSON);
+                        exportMacros(FORMAT_AHK);
                         return false;
                     }
                 });
     }
     
-    private void exportMacros() {
-//        mPrefs = getPreferenceScreen().getSharedPreferences();
-//        mList = new ArrayList<MacroEntry>();
+    private void exportMacros(int format) {
         String json = getPreferenceScreen().getSharedPreferences().getString("json", "");
         String path = Environment.getExternalStorageDirectory() + "/macros.txt";
+        List<MacroEntry> replacements = null;
+        
+        if (format == FORMAT_AHK) {
+            Type type = new TypeToken<List<MacroEntry>>() { }.getType();
+            replacements = new Gson().fromJson(json, type);
+            
+            if (replacements == null || replacements.isEmpty()) { 
+                Toast.makeText(this, "Macro list empty, file not exported", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(path);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-            outputStreamWriter.append(json);
+            
+            if (format == FORMAT_AHK) {
+                for (MacroEntry macro : replacements) {              
+                    outputStreamWriter.append("::" + macro.actual + "::" + macro.replacement + "\n");
+                }
+            } else if (format == FORMAT_JSON) {                
+                outputStreamWriter.append(json);
+            }
+            
             outputStreamWriter.close();
             fileOutputStream.close();
             Toast.makeText(this, "Macro list exported: " + path, Toast.LENGTH_SHORT).show();
@@ -81,6 +109,7 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         }
     }
     
+
     private void importFileChooser() {
         // Use the GET_CONTENT intent from the utility class
         Intent target = FileUtils.createGetContentIntent();
