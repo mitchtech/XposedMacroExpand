@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
+<!--       <SwitchPreference -->
+<!--           android:defaultValue="false" -->
+<!--           android:key="prefCaseSensitive" -->
+<!--           android:title="Case sensitive" -->
+<!--           android:summary="Force macros to be case sensitive" /> -->
+      
       <SwitchPreference
           android:defaultValue="false"
-          android:key="prefCaseSensitive"
-          android:title="Case sensitive" />
+          android:key="prefIgnorePassword"
+          android:title="Ignore Passwords"
+          android:summary="Don't expand macros in password fields" />
 
 </PreferenceScreen>

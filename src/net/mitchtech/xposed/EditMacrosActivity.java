@@ -112,10 +112,10 @@ public class EditMacrosActivity extends Activity {
                 addMacro();
                 return true;
 
-//            case R.id.action_settings:
-//                Intent settings = new Intent(this, MacroPreferenceActivity.class);
-//                startActivity(settings);
-//                return true;
+            case R.id.action_settings:
+                Intent settings = new Intent(this, MacroPreferenceActivity.class);
+                startActivity(settings);
+                return true;
 
             case R.id.action_exit:
                 this.finish();
