@@ -12,5 +12,15 @@
           android:key="prefIgnorePassword"
           android:title="Ignore Passwords"
           android:summary="Don't expand macros in password fields" />
-
+      
+      <Preference
+          android:key="prefImportMacros"
+          android:title="Import Macros"
+          android:summary="Tap to select file to import macros" />      
+      
+      <Preference
+          android:key="prefExportMacros"
+          android:title="Export Macros"
+          android:summary="Tap to select file to export macros" />
+      
 </PreferenceScreen>

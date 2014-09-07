@@ -3,5 +3,6 @@
 
     <string name="app_name">Xposed Macro Expand</string>
     <string name="xposeddescription">System-wide text / macro expansion</string>
+    <string name="chooser_title">Select file</string>
 
 </resources>
