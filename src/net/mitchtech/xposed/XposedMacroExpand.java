@@ -5,6 +5,7 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.content.Context;
+import android.content.SharedPreferences.Editor;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -38,7 +39,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
     private XSharedPreferences prefs;
 
-    public ArrayList<MacroEntry> replacements;
+    private ArrayList<MacroEntry> mMacroList;
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
@@ -82,12 +83,13 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
                     @Override
                     public void onFocusChange(View view, boolean hasFocus) {
-                        if (isEnabled("prefIgnorePassword") && editText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                            // XposedBridge.log(TAG + ": onFocusChange(): password");
+                        if (isEnabled("prefIgnorePassword") && editText.getInputType() 
+                                == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                         // XposedBridge.log(TAG + ": password box & ignore password enabled");
                         } else {
                             if (!hasFocus) {
                                 String actualText = editText.getText().toString();
-                                XposedBridge.log(TAG + ": onFocusChange(): " + actualText);
+                                // XposedBridge.log(TAG + ": onFocusChange(): " + actualText);
                                 String replacementText = replaceText(actualText);
                                 // prevent stack overflow, only set text if modified
                                 if (!actualText.equals(replacementText)) {
@@ -111,18 +113,19 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        if (isEnabled("prefIgnorePassword") && editText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                            // XposedBridge.log(TAG + ": afterTextChanged(): password");
+                        if (isEnabled("prefIgnorePassword") && editText.getInputType() 
+                                == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                            // XposedBridge.log(TAG + ": password box & ignore password enabled");
                         } else {
                             String actualText = editable.toString();
-                            XposedBridge.log(TAG + ": afterTextChanged(): " + actualText);
+                            // XposedBridge.log(TAG + ": afterTextChanged(): " + actualText);
                             String replacementText = replaceText(actualText);
                             // prevent stack overflow, only set text if modified
                             if (!actualText.equals(replacementText)) {
                                 editText.setText(replacementText);
-                                // dont move cursor if field i MultiAutoCompleteTextView
+                                // dont move cursor if field is MultiAutoCompleteTextView
                                 if (editText instanceof MultiAutoCompleteTextView) {
-                                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");s
+                                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");
                                 } else {                                    
                                     editText.setSelection(editText.getText().length());
                                 }
@@ -145,8 +148,8 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
     private String replaceText(String actualText) {
         String replacementText = actualText.toString();
-        if (replacements != null && !replacements.isEmpty()) {           
-            for (MacroEntry replacement : replacements) {
+        if (mMacroList != null && !mMacroList.isEmpty()) {           
+            for (MacroEntry replacement : mMacroList) {
 //                if (isEnabled("prefCaseSensitive")) {
 //                     case sensitive replacement
 //                XposedBridge.log(TAG + ": replaceText(): " + Pattern.quote(replacement.actual));
@@ -169,11 +172,12 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
     private void loadPrefs() {
         prefs = new XSharedPreferences(PKG_NAME);
-        prefs.makeWorldReadable();     
-        String json = prefs.getString("json", "");
-        Type type = new TypeToken<List<MacroEntry>>() { }.getType();
-        replacements = new Gson().fromJson(json, type);
+        prefs.makeWorldReadable();
+        mMacroList = MacroUtils.loadMacroList(prefs);
         XposedBridge.log(TAG + ": prefs loaded.");
+//        String json = prefs.getString("json", "");
+//        Type type = new TypeToken<List<MacroEntry>>() { }.getType();
+//        mMacroList = new Gson().fromJson(json, type);
     }
 
 }

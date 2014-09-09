@@ -42,8 +42,8 @@ public class EditMacrosActivity extends Activity {
 
     private ListView mListview;
     private TextView mListEmptyTextView;
-    private ArrayList<MacroEntry> mList;
-    private MacroAdapter mAdapter;
+    private ArrayList<MacroEntry> mMacroList;
+    private MacroAdapter mMacroAdapter;
     private SharedPreferences mPrefs;
 
     @Override
@@ -55,23 +55,26 @@ public class EditMacrosActivity extends Activity {
         
         mListview = (ListView) findViewById(R.id.listview);
         mListEmptyTextView = (TextView) findViewById(R.id.listEmptyText);
-        mList = new ArrayList<MacroEntry>();
+        mMacroList = MacroUtils.loadMacroList(mPrefs);
+        
+////        mMacroList = new ArrayList<MacroEntry>();
+//        String json = mPrefs.getString("json", "");
+//        Type type = new TypeToken<List<MacroEntry>>() { }.getType();
+////        List<MacroEntry> replacements = new Gson().fromJson(json, type);
+//        mMacroList = new Gson().fromJson(json, type);
+//        if (replacements == null || replacements.isEmpty()) {
+        
+//        if (mMacroList == null || mMacroList.isEmpty()) {
+//            mListEmptyTextView.setVisibility(View.VISIBLE);
+//        } else {
+//            mListEmptyTextView.setVisibility(View.GONE);
+////            for (MacroEntry replacement : replacements) {
+////                mList.add(replacement);
+////            }
+//        }
 
-        String json = mPrefs.getString("json", "");
-        Type type = new TypeToken<List<MacroEntry>>() { }.getType();
-        List<MacroEntry> replacements = new Gson().fromJson(json, type);
-
-        if (replacements == null || replacements.isEmpty()) {
-            mListEmptyTextView.setVisibility(View.VISIBLE);
-        } else {
-            mListEmptyTextView.setVisibility(View.GONE);
-            for (MacroEntry replacement : replacements) {
-                mList.add(replacement);
-            }
-        }
-
-        mAdapter = new MacroAdapter(this, mList);
-        mListview.setAdapter(mAdapter);
+        mMacroAdapter = new MacroAdapter(this, mMacroList);
+        mListview.setAdapter(mMacroAdapter);
         mListview.setTextFilterEnabled(true);
         mListview.setOnItemClickListener(new OnItemClickListener() {
 
@@ -85,15 +88,27 @@ public class EditMacrosActivity extends Activity {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                removeReplacement(position);
+                removeMacro(position);
                 return true;
             }
         });
     }
+    
+    @Override
+    protected void onResume() {
+//        mMacroList = MacroUtils.loadMacroList(mPrefs);
+        if (mMacroList == null || mMacroList.isEmpty()) {
+            mListEmptyTextView.setVisibility(View.VISIBLE);
+        } else {
+            mListEmptyTextView.setVisibility(View.GONE);
+        }
+//        mMacroAdapter.notifyDataSetChanged();
+        super.onResume();
+    }
 
     @Override
     protected void onPause() {
-        saveMacroList();
+        // MacroUtils.saveMacroList(mMacroList, mPrefs);
         super.onPause();
     }
 
@@ -144,16 +159,14 @@ public class EditMacrosActivity extends Activity {
                         
                         String actualText = actual.getText().toString();
                         String replacementText = replacement.getText().toString();
-                        
-                        // check for regex in text ($, ^, +, *, ., !, ?, |, \, (), {}, [])
 //                        if (isTextRegexFree(actualText) && isTextRegexFree(replacementText)) {
                             if (position > -1) {
-                                mList.remove(mListview.getItemAtPosition(position));
+                                mMacroList.remove(mListview.getItemAtPosition(position));
                             }
-                            mList.add(new MacroEntry(actualText, replacementText));
+                            mMacroList.add(new MacroEntry(actualText, replacementText));
                             mListEmptyTextView.setVisibility(View.GONE);
-                            mAdapter.notifyDataSetChanged();
-                            saveMacroList();
+                            mMacroAdapter.notifyDataSetChanged();
+                            MacroUtils.saveMacroList(mMacroList, mPrefs);
 //                        } else {    
 //                            Toast.makeText(
 //                                    EditMacrosActivity.this,
@@ -161,7 +174,6 @@ public class EditMacrosActivity extends Activity {
 //                                    Toast.LENGTH_SHORT).show();
 //                            editMacro(new MacroEntry(actualText, replacementText), position);
 //                        }
-                        
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -170,56 +182,24 @@ public class EditMacrosActivity extends Activity {
         alert.show();
     }
 
-    private void removeReplacement(final int position) {
+    private void removeMacro(final int position) {
         final AlertDialog.Builder alert = new AlertDialog.Builder(EditMacrosActivity.this);
         alert.setIcon(R.drawable.ic_launcher).setTitle("Delete Macro?")
                 .setMessage("Are you sure you want to delete this macro?")
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        mList.remove(mListview.getItemAtPosition(position));
-                        if (mList.isEmpty()) {
+                        mMacroList.remove(mListview.getItemAtPosition(position));
+                        if (mMacroList.isEmpty()) {
                             mListEmptyTextView.setVisibility(View.VISIBLE);
                         }
-                        mAdapter.notifyDataSetChanged();
-                        saveMacroList();
+                        mMacroAdapter.notifyDataSetChanged();
+                        MacroUtils.saveMacroList(mMacroList, mPrefs);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
         alert.show();
-    }
-    
-    private boolean isTextRegexFree(String text) {
-        // ($, ^, +, *, ., !, ?, |, \, (), {}, [])
-        if (text.contains("$") || text.contains("^") || text.contains("+") || text.contains("*")
-                || text.contains(".") || text.contains("!") || text.contains("?")
-                || text.contains("$") || text.contains("|") || text.contains("\\")
-                || text.contains("(") || text.contains(")") || text.contains("{")
-                || text.contains("}") || text.contains("[") || text.contains("]")) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-    
-    private void saveMacroList() {
-        String json = new Gson().toJson(mList);
-        Editor prefsEditor = mPrefs.edit();
-        prefsEditor.putString("json", json);
-        prefsEditor.commit();
-    }
-
-    public static String getVersion(Context context) {
-        String version = "1.0";
-        try {
-            PackageInfo pi = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            version = pi.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Package name not found", e);
-        }
-        return version;
     }
 
 }

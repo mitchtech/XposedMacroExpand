@@ -1,6 +1,7 @@
 package net.mitchtech.xposed;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
@@ -66,6 +67,28 @@ public class MacroUtils {
             Log.e(TAG, "Package name not found", e);
         }
         return version;
+    }
+    
+    public static Class<?> getLauncherClass(Context context) {
+        String className = context.getPackageManager()
+                .getLaunchIntentForPackage(context.getPackageName())
+                .getComponent().getClassName();
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        return clazz;
+    }
+    
+    public static void reloadLauncherActivity(Context context) {
+        Class<?> clazz = getLauncherClass(context);
+        Intent intent = new Intent(context, clazz);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
     
 }

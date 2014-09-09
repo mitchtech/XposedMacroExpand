@@ -18,4 +18,8 @@ public class MacroEntry {
     public String toString() {
         return actual + " : " + replacement;
     }
+    
+    public String toAhkRow() {
+        return "::" + actual + "::" + replacement + "\n";
+    }
 }
