@@ -31,9 +31,8 @@ public class MacroUtils {
     }
     
     public static void saveMacroList(ArrayList<MacroEntry> macroList, SharedPreferences prefs) {
-        String json = new Gson().toJson(macroList);
         Editor prefsEditor = prefs.edit();
-        prefsEditor.putString("json", json);
+        prefsEditor.putString("json", macroArrayListToJson(macroList));
         prefsEditor.commit();
     }
     

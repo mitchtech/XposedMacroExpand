@@ -16,7 +16,7 @@ public class MacroEntry {
     }
 
     public String toString() {
-        return actual + " : " + replacement;
+        return actual + " --> " + replacement;
     }
     
     public String toAhkRow() {

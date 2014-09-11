@@ -31,7 +31,7 @@
 	      <Preference
 	          android:key="prefExportMacros"
 	          android:title="Export Macros"
-	          android:summary="Tap to select file to export macros" />
+	          android:summary="Tap to export/backup macro list" />
 	      
 	  </PreferenceCategory>
 
@@ -57,6 +57,21 @@
 	            android:key="prefDonatePaypal"
 	            android:title="Donate"
 	            android:summary="Support development with a PayPal donation" />
+	
+<!-- 	        <Preference -->
+<!-- 	            android:key="prefGithub" -->
+<!-- 	            android:title="Github" -->
+<!-- 	            android:summary="This module is open source software. Tap to view sources on Github" /> -->
+	        
+	        <Preference
+	            android:key="prefChangeLog"
+	            android:title="View Changelog"
+	            android:summary="" />
+	        
+<!-- 	        <Preference -->
+<!-- 	            android:key="prefHelp" -->
+<!-- 	            android:title="Help" -->
+<!-- 	            android:summary="" /> -->
 	        
       </PreferenceCategory>
 	        

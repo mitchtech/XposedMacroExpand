@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,19 +17,14 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-
 import net.mitchtech.xposed.macroexpand.R;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MacroPreferenceActivity extends PreferenceActivity {
 
@@ -120,7 +113,8 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         ArrayList<MacroEntry> macroList = MacroUtils.loadMacroList(mPrefs);
         
         if (macroList == null || macroList.isEmpty()) { 
-            Toast.makeText(this, "Macro list empty, file not exported", Toast.LENGTH_SHORT).show();
+            exportResultDialog("Macro list empty. No file was exported.");
+            // Toast.makeText(this, "Macro list empty, file not exported", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -152,48 +146,62 @@ public class MacroPreferenceActivity extends PreferenceActivity {
 
             outputStreamWriter.close();
             fileOutputStream.close();
-            Toast.makeText(this, "Macro list exported: " + path, Toast.LENGTH_SHORT).show();
+            exportResultDialog("Complete. Exported " + macroList.size() + " macros to " + path);
+            // Toast.makeText(this, "Macro list exported: " + path, Toast.LENGTH_SHORT).show();
         } 
         catch (Exception e) {
-            Log.e(TAG, "File export error:", e);
+            Log.e(TAG, "File export error: ", e);
+            exportResultDialog("File export error: " + e);
         }
     }
     
     private void importMacros(String path, int format) {
         StringBuilder json = new StringBuilder();
+        StringBuilder log = new StringBuilder();
         ArrayList<MacroEntry> macroList = new ArrayList<MacroEntry>();
         String line;
 
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
             while ((line = bufferedReader.readLine()) != null) {
-                Log.i(TAG, line);
                 if (format == FORMAT_JSON) {
-                    json.append(line); // json.append(line + "\n"); 
+                    // Log.i(TAG, "Import json:[" + line + "]");
+                    json.append(line); // json.append(line + "\n");
+                    log.append("Import json: " + line + "\n");
                 } else if (format == FORMAT_AHK) {
                     if (line.startsWith("::")) {
                         String[] split = line.split("::");
                         if (split.length != 3) {
-                            Log.e(TAG, "Invalid line format. split.length[" + split.length + " !=3]");
+                            // Log.e(TAG, "Invalid line format. split.length[" + split.length + " !=3]");
+                            // Log.i(TAG, "Skipping line:[" + line + "]");
+                            log.append("Skipping line: [" + line + "]\n");
                         } else {
                             MacroEntry macro = new MacroEntry(split[1], split[2]);
-                            Log.i(TAG, "Import Macro:" + macro.toString());
+                            // Log.i(TAG, "Import Macro:[" + macro.toString() + "]");
+                            log.append("Import Macro: [" + macro.toString() + "]\n");
                             macroList.add(macro);
                         }
+                    } else {
+                        // XposedBridge.log(TAG + ": Skipping line:" + line);
+                        // Log.i(TAG, "Skipping line:[" + line + "]");
+                        log.append("Skipping line: [" + line + "]\n");
                     }
                 }
             }
             bufferedReader.close();
-            SharedPreferences.Editor editor = getPreferenceScreen().getSharedPreferences().edit();
                      
             if (format == FORMAT_JSON) {
-                editor.putString("json", json.toString());                
-            } else if (format == FORMAT_AHK) {
-                editor.putString("json", MacroUtils.macroArrayListToJson(macroList));
+                macroList = MacroUtils.jsonToMacroArrayList(json.toString());
             }
-            editor.commit();
-            Toast.makeText(this, "Macro list imported: " + path, Toast.LENGTH_SHORT).show();
-            MacroUtils.reloadLauncherActivity(this);
+
+            if (macroList.size() > 0) {
+                log.append("\nComplete. Imported: " + macroList.size() + " macros from " + path);
+                MacroUtils.saveMacroList(macroList, mPrefs);                
+            } else {
+                log.append("\nComplete. No macros found in file " + path);
+            }
+            
+            importResultDialog(log.toString());
             
         } catch (Exception e) {
             Log.e(TAG, "File import error:", e);
@@ -276,6 +284,19 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         alert.show();
     }
     
+    private void importResultDialog(final String log) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
+        alert.setIcon(R.drawable.ic_launcher).setTitle("Import Result")
+                .setMessage(log)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        MacroUtils.reloadLauncherActivity(MacroPreferenceActivity.this);
+                    }
+                });
+        alert.show();
+    }
+    
     private void exportFormatDialog() {
         final CharSequence[] items = {"AutoHotKey", "JSON"};
         final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
@@ -294,6 +315,18 @@ public class MacroPreferenceActivity extends PreferenceActivity {
                                 break;
                         }
                         dialog.dismiss();
+                    }
+                });
+        alert.show();
+    }
+    
+    private void exportResultDialog(final String log) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
+        alert.setIcon(R.drawable.ic_launcher).setTitle("Export Result")
+                .setMessage(log)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
         alert.show();
