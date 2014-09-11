@@ -8,16 +8,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.Window;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
+
 import net.mitchtech.xposed.macroexpand.R;
 
 import java.io.BufferedReader;
@@ -34,6 +35,9 @@ public class MacroPreferenceActivity extends PreferenceActivity {
     private static final int FORMAT_JSON = 1;
     
     private SharedPreferences mPrefs;
+    
+    private Preference mPrefImportMacros;
+    private Preference mPrefExportMacros;
     private Preference mPrefAboutModule;
     private Preference mPrefAboutXposed;
     private Preference mPrefDonatePaypal;
@@ -43,6 +47,7 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         
         // this is important since settings executed in the context of the hooked package
@@ -52,26 +57,8 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         
         mPrefs = getPreferenceScreen().getSharedPreferences();
         
-        findPreference("prefImportMacros").setOnPreferenceClickListener(
-                new OnPreferenceClickListener() {
-
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        importFormatDialog(); // importFileChooser();
-                        return false;
-                    }
-                });
-        
-        findPreference("prefExportMacros").setOnPreferenceClickListener(
-                new OnPreferenceClickListener() {
-
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        exportFormatDialog();
-                        return false;
-                    }
-                });
-        
+        mPrefImportMacros = findPreference("prefImportMacros");
+        mPrefExportMacros = findPreference("prefExportMacros");        
         mPrefAboutModule = findPreference("prefAboutModule");
         mPrefAboutXposed = findPreference("prefAboutXposed");
         mPrefDonatePaypal = findPreference("prefDonatePaypal");
@@ -87,7 +74,11 @@ public class MacroPreferenceActivity extends PreferenceActivity {
     public boolean onPreferenceTreeClick(PreferenceScreen prefScreen, Preference pref) {
         Intent intent = null;
         
-        if (pref == mPrefAboutModule) {
+        if (pref == mPrefImportMacros) {
+            importFormatDialog();
+        } else if (pref == mPrefExportMacros) {
+            exportFormatDialog();
+        } else if (pref == mPrefAboutModule) {
             intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_xda)));
         } else if (pref == mPrefAboutXposed) {
             intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_xposed)));
@@ -107,105 +98,6 @@ public class MacroPreferenceActivity extends PreferenceActivity {
             return true;
         }
         return super.onPreferenceTreeClick(prefScreen, pref);
-    }
-    
-    private void exportMacros(int format) {
-        ArrayList<MacroEntry> macroList = MacroUtils.loadMacroList(mPrefs);
-        
-        if (macroList == null || macroList.isEmpty()) { 
-            exportResultDialog("Macro list empty. No file was exported.");
-            // Toast.makeText(this, "Macro list empty, file not exported", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            String path = "";
-            FileOutputStream fileOutputStream = null;
-            OutputStreamWriter outputStreamWriter = null;
-            
-            switch (format) {
-                case FORMAT_AHK:
-                    path = Environment.getExternalStorageDirectory() + "/macros.ahk";
-                    fileOutputStream = new FileOutputStream(path);
-                    outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-                    for (MacroEntry macro : macroList) {              
-                        outputStreamWriter.append("::" + macro.actual + "::" + macro.replacement + "\n");
-                    }
-                    break;
-                    
-                case FORMAT_JSON:
-                    path = Environment.getExternalStorageDirectory() + "/macros.json";
-                    fileOutputStream = new FileOutputStream(path);
-                    outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-                    outputStreamWriter.append(MacroUtils.macroArrayListToJson(macroList));
-                    break;
-
-                default:
-                    break;
-            }
-
-            outputStreamWriter.close();
-            fileOutputStream.close();
-            exportResultDialog("Complete. Exported " + macroList.size() + " macros to " + path);
-            // Toast.makeText(this, "Macro list exported: " + path, Toast.LENGTH_SHORT).show();
-        } 
-        catch (Exception e) {
-            Log.e(TAG, "File export error: ", e);
-            exportResultDialog("File export error: " + e);
-        }
-    }
-    
-    private void importMacros(String path, int format) {
-        StringBuilder json = new StringBuilder();
-        StringBuilder log = new StringBuilder();
-        ArrayList<MacroEntry> macroList = new ArrayList<MacroEntry>();
-        String line;
-
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
-            while ((line = bufferedReader.readLine()) != null) {
-                if (format == FORMAT_JSON) {
-                    // Log.i(TAG, "Import json:[" + line + "]");
-                    json.append(line); // json.append(line + "\n");
-                    log.append("Import json: " + line + "\n");
-                } else if (format == FORMAT_AHK) {
-                    if (line.startsWith("::")) {
-                        String[] split = line.split("::");
-                        if (split.length != 3) {
-                            // Log.e(TAG, "Invalid line format. split.length[" + split.length + " !=3]");
-                            // Log.i(TAG, "Skipping line:[" + line + "]");
-                            log.append("Skipping line: [" + line + "]\n");
-                        } else {
-                            MacroEntry macro = new MacroEntry(split[1], split[2]);
-                            // Log.i(TAG, "Import Macro:[" + macro.toString() + "]");
-                            log.append("Import Macro: [" + macro.toString() + "]\n");
-                            macroList.add(macro);
-                        }
-                    } else {
-                        // XposedBridge.log(TAG + ": Skipping line:" + line);
-                        // Log.i(TAG, "Skipping line:[" + line + "]");
-                        log.append("Skipping line: [" + line + "]\n");
-                    }
-                }
-            }
-            bufferedReader.close();
-                     
-            if (format == FORMAT_JSON) {
-                macroList = MacroUtils.jsonToMacroArrayList(json.toString());
-            }
-
-            if (macroList.size() > 0) {
-                log.append("\nComplete. Imported: " + macroList.size() + " macros from " + path);
-                MacroUtils.saveMacroList(macroList, mPrefs);                
-            } else {
-                log.append("\nComplete. No macros found in file " + path);
-            }
-            
-            importResultDialog(log.toString());
-            
-        } catch (Exception e) {
-            Log.e(TAG, "File import error:", e);
-        }
     }
     
     private void importFileChooser(int format) {
@@ -249,7 +141,8 @@ public class MacroPreferenceActivity extends PreferenceActivity {
                   .setMessage("Are you sure you want to overwrite your macro list with imported entries? \n\nThis operation cannot be undone!")
                 .setPositiveButton("Overwrite", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        importMacros(path, format); // importMacros(path, FORMAT_AHK);
+                        setProgressBarIndeterminateVisibility(true);
+                        new ImportMacroListTask(format).execute(path);
                     }
 //                }).setNeutralButton("Append", new DialogInterface.OnClickListener() {
 //                    public void onClick(DialogInterface dialog, int whichButton) {
@@ -306,12 +199,15 @@ public class MacroPreferenceActivity extends PreferenceActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        setProgressBarIndeterminateVisibility(true);
                         switch (which) {
                             case FORMAT_AHK:
-                                exportMacros(FORMAT_AHK);
+                                // exportMacros(FORMAT_AHK);
+                                new ExportMacroListTask(FORMAT_AHK).execute();
                                 break;
                             case FORMAT_JSON:
-                                exportMacros(FORMAT_JSON);
+                                // exportMacros(FORMAT_JSON);
+                                new ExportMacroListTask(FORMAT_JSON).execute();
                                 break;
                         }
                         dialog.dismiss();
@@ -332,4 +228,136 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         alert.show();
     }
     
+    
+    class ImportMacroListTask extends AsyncTask<String, Void, String> {
+
+        int mFormat;
+        
+        public ImportMacroListTask(int format) {
+            mFormat = format;
+        }
+        
+        @Override
+        protected String doInBackground(String... params) {
+            StringBuilder json = new StringBuilder();
+            StringBuilder log = new StringBuilder();
+            String path = params[0];
+            ArrayList<MacroEntry> macroList = new ArrayList<MacroEntry>();
+            String line;
+            setProgressBarIndeterminateVisibility(true);
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+                while ((line = bufferedReader.readLine()) != null) {
+                    if (mFormat == FORMAT_JSON) {
+                        json.append(line); // json.append(line + "\n");
+                        log.append("Import json: " + line + "\n");
+                    } else if (mFormat == FORMAT_AHK) {
+                        if (line.startsWith("::")) {
+                            String[] split = line.split("::");
+                            if (split.length != 3) {
+                                // Log.e(TAG, "Invalid line format. split.length[" + split.length + " !=3]");
+                                log.append("Skipping line: [" + line + "]\n");
+                            } else {
+                                MacroEntry macro = new MacroEntry(split[1], split[2]);
+                                log.append("Import Macro: [" + macro.toString() + "]\n");
+                                macroList.add(macro);
+                            }
+                        } else {
+                            log.append("Skipping line: [" + line + "]\n");
+                        }
+                    }
+                }
+                bufferedReader.close();
+                         
+                if (mFormat == FORMAT_JSON) {
+                    macroList = MacroUtils.jsonToMacroArrayList(json.toString());
+                }
+
+                if (macroList.size() > 0) {
+                    log.append("\nComplete. Imported: " + macroList.size() + " macros from " + path);
+                    MacroUtils.saveMacroList(macroList, mPrefs);                
+                } else {
+                    log.append("\nComplete. No macros found in file " + path);
+                }
+                return log.toString();
+                
+            } catch (Exception e) {
+                Log.e(TAG, "File import error:", e);
+                return "File import error:" + e;
+            }
+        }
+        
+        protected void onPostExecute(String result) {
+            final String output = result.toString();
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    importResultDialog(output);
+                    setProgressBarIndeterminateVisibility(false);
+                }
+              });
+        }
+    }
+    
+    class ExportMacroListTask extends AsyncTask<String, Void, String> {
+
+        int mFormat;
+        
+        public ExportMacroListTask(int format) {
+            mFormat = format;
+        }
+        
+        @Override
+        protected String doInBackground(String... params) {
+            ArrayList<MacroEntry> macroList = MacroUtils.loadMacroList(mPrefs);
+            
+            if (macroList == null || macroList.isEmpty()) { 
+                return "Macro list empty. No file was exported.";
+            }
+            
+            try {
+                String path = "";
+                FileOutputStream fileOutputStream = null;
+                OutputStreamWriter outputStreamWriter = null;
+                
+                switch (mFormat) {
+                    case FORMAT_AHK:
+                        path = Environment.getExternalStorageDirectory() + "/macros.ahk";
+                        fileOutputStream = new FileOutputStream(path);
+                        outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+                        for (MacroEntry macro : macroList) {              
+                            outputStreamWriter.append("::" + macro.actual + "::" + macro.replacement + "\n");
+                        }
+                        break;
+                        
+                    case FORMAT_JSON:
+                        path = Environment.getExternalStorageDirectory() + "/macros.json";
+                        fileOutputStream = new FileOutputStream(path);
+                        outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+                        outputStreamWriter.append(MacroUtils.macroArrayListToJson(macroList));
+                        break;
+
+                    default:
+                        break;
+                }
+
+                outputStreamWriter.close();
+                fileOutputStream.close();
+                return "Complete. Exported " + macroList.size() + " macros to " + path;
+            } 
+            catch (Exception e) {
+                Log.e(TAG, "File export error: ", e);
+                return "File export error: " + e;
+            }
+        }
+        
+        protected void onPostExecute(String result) {
+            final String output = result.toString();
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    exportResultDialog(output);
+                    setProgressBarIndeterminateVisibility(false);
+                }
+              });
+        }
+    }
 }
