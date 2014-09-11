@@ -58,11 +58,11 @@ public class MacroUtils {
     }
     
     public static String getVersion(Context context) {
-        String version = "1.0";
+        String version = "";
         try {
             PackageInfo pi = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0);
-            version = pi.versionName;
+            version = " v" + pi.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Package name not found", e);
         }
@@ -77,7 +77,6 @@ public class MacroUtils {
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
         return clazz;

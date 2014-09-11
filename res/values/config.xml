@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="url_xda" translatable="false">http://forum.xda-developers.com/xposed/modules/mod-macro-text-expansion-t2861213</string>
+    <string name="url_xposed" translatable="false">http://forum.xda-developers.com/xposed/xposed-installer-versions-changelog-t2714053</string>
+    <string name="url_github" translatable="false">https://github.com/mitchtech/XposedMacroExpand</string>
+    <string name="url_paypal" translatable="false">https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=TCD2DEDBQ8AR6</string>
+</resources>
