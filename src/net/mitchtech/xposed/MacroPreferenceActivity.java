@@ -260,7 +260,7 @@ public class MacroPreferenceActivity extends PreferenceActivity {
             String path = params[0];
             ArrayList<MacroEntry> macroList = new ArrayList<MacroEntry>();
             String line;
-            setProgressBarIndeterminateVisibility(true);
+            
             try {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
                 while ((line = bufferedReader.readLine()) != null) {
@@ -274,9 +274,16 @@ public class MacroPreferenceActivity extends PreferenceActivity {
                                 // Log.e(TAG, "Invalid line format. split.length[" + split.length + " !=3]");
                                 log.append("Skipping line: [" + line + "]\n");
                             } else {
-                                MacroEntry macro = new MacroEntry(split[1], split[2]);
-                                log.append("Import Macro: [" + macro.toString() + "]\n");
-                                macroList.add(macro);
+                                String macro = split[1];
+                                String replacement = split[2];
+                                if (replacement.contains(";")) {
+                                    String[] removeComment = replacement.split(";");
+                                    replacement = removeComment[0].trim();
+                                }
+                                // MacroEntry macroEntry = new MacroEntry(split[1], split[2]);
+                                MacroEntry macroEntry = new MacroEntry(macro, replacement);
+                                log.append("Import Macro: [" + macroEntry.toString() + "]\n");
+                                macroList.add(macroEntry);
                             }
                         } else {
                             log.append("Skipping line: [" + line + "]\n");
