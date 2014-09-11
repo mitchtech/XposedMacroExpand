@@ -14,8 +14,10 @@ import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.text.Html;
 import android.util.Log;
 import android.view.Window;
+import android.webkit.WebView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
@@ -87,6 +89,7 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         } else if (pref == mPrefGithub) {
         } else if (pref == mPrefHelp) {
         } else if (pref == mPrefChangeLog) {
+            changelogDialog();
         }
         
         if (intent != null) {
@@ -228,6 +231,19 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         alert.show();
     }
     
+    private void changelogDialog() {
+        WebView webView = new WebView (this);
+        webView.loadUrl("file:///android_asset/changelog.html");
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setIcon(R.drawable.ic_launcher).setTitle("Changelog")
+                .setView(webView)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+        alert.show();
+    }
     
     class ImportMacroListTask extends AsyncTask<String, Void, String> {
 
@@ -291,8 +307,8 @@ public class MacroPreferenceActivity extends PreferenceActivity {
             final String output = result.toString();
             runOnUiThread(new Runnable() {
                 public void run() {
-                    importResultDialog(output);
                     setProgressBarIndeterminateVisibility(false);
+                    importResultDialog(output);
                 }
               });
         }
@@ -354,8 +370,8 @@ public class MacroPreferenceActivity extends PreferenceActivity {
             final String output = result.toString();
             runOnUiThread(new Runnable() {
                 public void run() {
-                    exportResultDialog(output);
                     setProgressBarIndeterminateVisibility(false);
+                    exportResultDialog(output);
                 }
               });
         }
