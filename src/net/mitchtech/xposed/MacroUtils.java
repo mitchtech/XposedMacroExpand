@@ -12,6 +12,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +42,19 @@ public class MacroUtils {
       String json = prefs.getString("json", "");
       Type type = new TypeToken<List<MacroEntry>>() { }.getType();
       ArrayList<MacroEntry> macroList = new Gson().fromJson(json, type);
+      if (macroList == null) {
+          macroList = new ArrayList<MacroEntry>();
+      }
       return macroList;
     }
-        
+    
+    // or "ISO-8859-1" for ISO Latin 1
+    public static CharsetEncoder asciiEncoder = Charset.forName("US-ASCII").newEncoder();
+
+    public static boolean isPureAscii(String string) {
+        return asciiEncoder.canEncode(string);
+    }
+          
     // check for regex in text ($, ^, +, *, ., !, ?, |, \, (), {}, [])
     public static boolean isTextRegexFree(String text) {
         if (text.contains("$") || text.contains("^") || text.contains("+") || text.contains("*")

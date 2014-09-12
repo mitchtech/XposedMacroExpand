@@ -142,9 +142,9 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         alert.setIcon(R.drawable.ic_launcher).setTitle("Overwrite Macro List?")
 //                .setMessage("Do you want to overwrite your macro list or append imported entries? \n\nThis operation cannot be undone!")
                   .setMessage("Are you sure you want to overwrite your macro list with imported entries? \n\nThis operation cannot be undone!")
-                .setPositiveButton("Overwrite", new DialogInterface.OnClickListener() {
+                  .setPositiveButton("Overwrite", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        setProgressBarIndeterminateVisibility(true);
+                        // setProgressBarIndeterminateVisibility(true);
                         new ImportMacroListTask(format).execute(path);
                     }
 //                }).setNeutralButton("Append", new DialogInterface.OnClickListener() {
@@ -254,6 +254,12 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         }
         
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            setProgressBarIndeterminateVisibility(true);
+        }
+        
+        @Override
         protected String doInBackground(String... params) {
             StringBuilder json = new StringBuilder();
             StringBuilder log = new StringBuilder();
@@ -268,11 +274,12 @@ public class MacroPreferenceActivity extends PreferenceActivity {
                         json.append(line); // json.append(line + "\n");
                         log.append("Import json: " + line + "\n");
                     } else if (mFormat == FORMAT_AHK) {
-                        if (line.startsWith("::")) {
+                        if (!MacroUtils.isPureAscii(line)) {
+                            log.append("Skipping non-ascii line:: [" + line + "]\n");
+                        } else if (line.startsWith("::")) {
                             String[] split = line.split("::");
                             if (split.length != 3) {
-                                // Log.e(TAG, "Invalid line format. split.length[" + split.length + " !=3]");
-                                log.append("Skipping line: [" + line + "]\n");
+                                log.append("Invalid format. Skipping line: [" + line + "]\n");
                             } else {
                                 String macro = split[1];
                                 String replacement = split[2];
@@ -286,7 +293,7 @@ public class MacroPreferenceActivity extends PreferenceActivity {
                                 macroList.add(macroEntry);
                             }
                         } else {
-                            log.append("Skipping line: [" + line + "]\n");
+                            log.append("Invalid format. Skipping line: [" + line + "]\n");
                         }
                     }
                 }
@@ -295,14 +302,26 @@ public class MacroPreferenceActivity extends PreferenceActivity {
                 if (mFormat == FORMAT_JSON) {
                     macroList = MacroUtils.jsonToMacroArrayList(json.toString());
                 }
-
+                
+                String result;
                 if (macroList.size() > 0) {
-                    log.append("\nComplete. Imported: " + macroList.size() + " macros from " + path);
+                    result = "Complete. Imported: " + macroList.size() + " macros from " + path; 
+                            // + "\n\nSoft reboot to activate";
                     MacroUtils.saveMacroList(macroList, mPrefs);                
                 } else {
-                    log.append("\nComplete. No macros found in file " + path);
+                    result = "Complete. No macros found in file " + path;
                 }
-                return log.toString();
+                
+                if (mPrefs.getBoolean("prefImportDebug", false)) {
+                    FileOutputStream fileOutputStream = new FileOutputStream(path + ".log");
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+                    outputStreamWriter.append(log);
+                    outputStreamWriter.close();
+                    fileOutputStream.close();
+                    result = result + "\n\nDebug log output to " + path + ".log";
+                }
+                
+                return result;
                 
             } catch (Exception e) {
                 Log.e(TAG, "File import error:", e);
@@ -311,13 +330,9 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         }
         
         protected void onPostExecute(String result) {
+            setProgressBarIndeterminateVisibility(false);
             final String output = result.toString();
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    setProgressBarIndeterminateVisibility(false);
-                    importResultDialog(output);
-                }
-              });
+            importResultDialog(output);
         }
     }
     
@@ -327,6 +342,12 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         
         public ExportMacroListTask(int format) {
             mFormat = format;
+        }
+        
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            setProgressBarIndeterminateVisibility(true);
         }
         
         @Override
@@ -374,13 +395,9 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         }
         
         protected void onPostExecute(String result) {
+            setProgressBarIndeterminateVisibility(false);
             final String output = result.toString();
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    setProgressBarIndeterminateVisibility(false);
-                    exportResultDialog(output);
-                }
-              });
+            exportResultDialog(output);
         }
     }
 }

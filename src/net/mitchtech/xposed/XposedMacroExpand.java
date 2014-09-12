@@ -150,16 +150,15 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
         String replacementText = actualText.toString();
         if (mMacroList != null && !mMacroList.isEmpty()) {           
             for (MacroEntry replacement : mMacroList) {
-//                if (isEnabled("prefCaseSensitive")) {
-//                     case sensitive replacement
-//                XposedBridge.log(TAG + ": replaceText(): " + Pattern.quote(replacement.actual));
+                if (isEnabled("prefIgnoreCase")) {
+                    // "(?i)" used for case insensitive replace
+                    replacementText = replacementText.replaceAll(("(?i)" + Pattern.quote(replacement.actual)),
+                            replacement.replacement);
+                } else {
+                    // case sensitive replacement
                     replacementText = replacementText.replaceAll(Pattern.quote(replacement.actual),
                             replacement.replacement);
-//                } else {
-//                    // "(?i)" used for case insensitive replace
-//                    replacementText = replacementText.replaceAll(("(?i)" + Pattern.quote(replacement.actual)),
-//                            replacement.replacement);
-//                }
+                }
             }
         }
         return replacementText;

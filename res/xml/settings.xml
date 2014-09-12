@@ -7,9 +7,9 @@
     
 	      <SwitchPreference
 	          android:defaultValue="false"
-	          android:key="prefCaseSensitive"
-	          android:title="Case sensitive"
-	          android:summary="Force macros to be case sensitive" />
+	          android:key="prefIgnoreCase"
+	          android:title="Ignore Case"
+	          android:summary="Make macros case insensitive (disregard capitalization)" />
 	      
 	      <SwitchPreference
 	          android:defaultValue="false"
@@ -20,18 +20,24 @@
       </PreferenceCategory>
       
       <PreferenceCategory 
-          android:title="Import/Export"
-          android:key="prefCatImportExport" >
+          android:title="Backup/Restore"
+          android:key="prefCatBackupRestore" >
+
+         <Preference
+	          android:key="prefExportMacros"
+	          android:title="Export Macros"
+	          android:summary="Tap to export/backup macro list" />
       
 	      <Preference
 	          android:key="prefImportMacros"
 	          android:title="Import Macros"
-	          android:summary="Tap to select file to import macros" />      
-	      
-	      <Preference
-	          android:key="prefExportMacros"
-	          android:title="Export Macros"
-	          android:summary="Tap to export/backup macro list" />
+	          android:summary="Tap to select file to import/restore macros" />      
+		  
+		  <SwitchPreference
+		      android:defaultValue="false"
+	          android:key="prefImportDebug"
+	          android:title="Import Debug"
+	          android:summary="Enable import/restore debug logging" />           
 	      
 	  </PreferenceCategory>
 
@@ -40,8 +46,8 @@
 <!--         android:title="About Macro Expand" > -->
 
       <PreferenceCategory 
-          android:title="About/Help"
-          android:key="prefCatAboutHelp" >
+          android:title="About/Support"
+          android:key="prefCatAbout" >
 
 	        <Preference
 	            android:key="prefAboutModule" 

@@ -3,16 +3,11 @@ package net.mitchtech.xposed;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,21 +19,16 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import net.mitchtech.xposed.macroexpand.R;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
 public class EditMacrosActivity extends Activity {
 
     private static final String TAG = EditMacrosActivity.class.getSimpleName();
     private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";
+    private static final int MACRO_SIZE_WARN = 100;
 
     private ListView mListview;
     private TextView mListEmptyTextView;
@@ -51,26 +41,14 @@ public class EditMacrosActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_edit_macros);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());     
-        
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
         mListview = (ListView) findViewById(R.id.listview);
         mListEmptyTextView = (TextView) findViewById(R.id.listEmptyText);
         mMacroList = MacroUtils.loadMacroList(mPrefs);
-        
-////        mMacroList = new ArrayList<MacroEntry>();
-//        String json = mPrefs.getString("json", "");
-//        Type type = new TypeToken<List<MacroEntry>>() { }.getType();
-////        List<MacroEntry> replacements = new Gson().fromJson(json, type);
-//        mMacroList = new Gson().fromJson(json, type);
-//        if (replacements == null || replacements.isEmpty()) {
-        
-//        if (mMacroList == null || mMacroList.isEmpty()) {
-//            mListEmptyTextView.setVisibility(View.VISIBLE);
-//        } else {
-//            mListEmptyTextView.setVisibility(View.GONE);
-////            for (MacroEntry replacement : replacements) {
-////                mList.add(replacement);
-////            }
+
+//        if (mMacroList.size() >= MACRO_SIZE_WARN) {
+//            macroListLengthWarningDialog(mMacroList.size());
 //        }
 
         mMacroAdapter = new MacroAdapter(this, mMacroList);
@@ -93,22 +71,19 @@ public class EditMacrosActivity extends Activity {
             }
         });
     }
-    
+
     @Override
     protected void onResume() {
-//        mMacroList = MacroUtils.loadMacroList(mPrefs);
         if (mMacroList == null || mMacroList.isEmpty()) {
             mListEmptyTextView.setVisibility(View.VISIBLE);
         } else {
             mListEmptyTextView.setVisibility(View.GONE);
         }
-//        mMacroAdapter.notifyDataSetChanged();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        // MacroUtils.saveMacroList(mMacroList, mPrefs);
         super.onPause();
     }
 
@@ -122,7 +97,7 @@ public class EditMacrosActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            
+
             case R.id.action_add:
                 addMacro();
                 return true;
@@ -156,24 +131,26 @@ public class EditMacrosActivity extends Activity {
         alert.setIcon(R.drawable.ic_launcher).setTitle("Define Macro").setView(textEntryView)
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        
+
                         String actualText = actual.getText().toString();
                         String replacementText = replacement.getText().toString();
-//                        if (isTextRegexFree(actualText) && isTextRegexFree(replacementText)) {
-                            if (position > -1) {
-                                mMacroList.remove(mListview.getItemAtPosition(position));
-                            }
-                            mMacroList.add(new MacroEntry(actualText, replacementText));
-                            mListEmptyTextView.setVisibility(View.GONE);
-                            mMacroAdapter.notifyDataSetChanged();
-                            MacroUtils.saveMacroList(mMacroList, mPrefs);
-//                        } else {    
-//                            Toast.makeText(
-//                                    EditMacrosActivity.this,
-//                                    "Macros cannot contain regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, [])",
-//                                    Toast.LENGTH_SHORT).show();
-//                            editMacro(new MacroEntry(actualText, replacementText), position);
-//                        }
+                        // if (isTextRegexFree(actualText) &&
+                        // isTextRegexFree(replacementText)) {
+                        if (position > -1) {
+                            mMacroList.remove(mListview.getItemAtPosition(position));
+                        }
+                        mMacroList.add(new MacroEntry(actualText, replacementText));
+                        mListEmptyTextView.setVisibility(View.GONE);
+                        mMacroAdapter.notifyDataSetChanged();
+                        MacroUtils.saveMacroList(mMacroList, mPrefs);
+                        // } else {
+                        // Toast.makeText(
+                        // EditMacrosActivity.this,
+                        // "Macros cannot contain regular expression characters ($, ^, +, *, ., !, ?, |, \\, (), {}, [])",
+                        // Toast.LENGTH_SHORT).show();
+                        // editMacro(new MacroEntry(actualText,
+                        // replacementText), position);
+                        // }
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -196,6 +173,21 @@ public class EditMacrosActivity extends Activity {
                         MacroUtils.saveMacroList(mMacroList, mPrefs);
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+        alert.show();
+    }
+
+    private void macroListLengthWarningDialog(int length) {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(EditMacrosActivity.this);
+        alert.setIcon(R.drawable.ic_launcher)
+                .setTitle("Size Warning")
+                .setMessage(
+                        "Waring, macro list contains " + length
+                                + " entries. This is permitted, but performance my degrade as a result")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     }
                 });
