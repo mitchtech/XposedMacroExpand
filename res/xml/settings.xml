@@ -6,6 +6,12 @@
           android:key="prefCatMacroSettings" >
     
 	      <SwitchPreference
+	          android:defaultValue="true"
+	          android:key="prefMoveCursor"
+	          android:title="Move Cursor"
+	          android:summary="Move cursor to end of text after expansion" />
+	      
+	      <SwitchPreference
 	          android:defaultValue="false"
 	          android:key="prefIgnoreCase"
 	          android:title="Ignore Case"

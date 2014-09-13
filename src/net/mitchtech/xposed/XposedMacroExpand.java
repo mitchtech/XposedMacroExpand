@@ -5,7 +5,6 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.content.Context;
-import android.content.SharedPreferences.Editor;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -16,9 +15,6 @@ import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
@@ -26,10 +22,7 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -126,8 +119,10 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                                 // dont move cursor if field is MultiAutoCompleteTextView
                                 if (editText instanceof MultiAutoCompleteTextView) {
                                     // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");
-                                } else {                                    
-                                    editText.setSelection(editText.getText().length());
+                                } else {
+                                    if (isEnabled("prefMoveCursor")) {
+                                        editText.setSelection(editText.getText().length());
+                                    }
                                 }
                             }
                         }
