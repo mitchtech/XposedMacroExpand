@@ -33,7 +33,13 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
     private XSharedPreferences prefs;
 
     private ArrayList<MacroEntry> mMacroList;
-
+    
+	private final String[] preMacro = { ":ld:", // ":ld:" local date
+			":\\d+\\+ld:", // ":x+ld:" local date + number of days
+			":lt:", // ":lt:" local time
+			":\\d+\\+lt:", // ":x+lt:" local time + number of hours
+	};
+	
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
         loadPrefs();
@@ -156,8 +162,54 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                 }
             }
         }
-        return replacementText;
-    }
+		if (isEnabled("prefEnablePreload"))
+			replacementText = preloadedReplace(replacementText);
+		return replacementText;
+	}
+
+	private String preloadedReplace(String actualText) {
+		String replacementText = actualText.toString();
+		for (String replacement : preMacro) {
+			Matcher matcher = Pattern.compile(replacement).matcher(
+					replacementText);
+			int num = 0;
+			String type = "";
+			try {
+				if (matcher.find()) {
+					type = matcher.group();
+					matcher = Pattern.compile("(\\d+)").matcher(type);
+					if (matcher.find())
+						num = Integer.parseInt(matcher.group());
+				}
+			} catch (Exception ex) {
+				// Avoid empty ones
+			}
+			if (type != null && !type.isEmpty())
+				replacementText = replacementText.replaceAll(
+						("(?i)" + replacement), fxConvert(type, num));
+		}
+		return replacementText;
+	}
+
+	private String fxConvert(String type, Integer num) {
+		if (type == null)
+			return "";
+		if (type.contains("ld")) {
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.DATE, num);
+			String date = new SimpleDateFormat("dd/MM/yyyy",
+					Locale.getDefault()).format(c.getTime());
+			return date;
+		}
+		if (type.contains("lt")) {
+			Calendar c = Calendar.getInstance();
+			c.add(Calendar.HOUR, num);
+			String date = new SimpleDateFormat("h:mm a", Locale.getDefault())
+					.format(c.getTime());
+			return date;
+		}
+		return "";
+	}
 
     private boolean isEnabled(String pkgName) {
         prefs.reload();
