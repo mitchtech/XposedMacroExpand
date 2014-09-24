@@ -16,7 +16,13 @@
 	          android:key="prefIgnoreCase"
 	          android:title="Ignore Case"
 	          android:summary="Make macros case insensitive (disregard capitalization)" />
-	      
+	      	      
+	      <SwitchPreference
+	          android:defaultValue="true"
+	          android:key="prefEnablePreload"
+	          android:title="Enable Preloaded Macro"
+	          android:summary=":ld: - Local Date\n:x+ld: - Local Date + Number of days\n:lt: - Local Time\n:x+lt: - Local Time + Number of hours" />
+
 	      <SwitchPreference
 	          android:defaultValue="false"
 	          android:key="prefIgnorePassword"
