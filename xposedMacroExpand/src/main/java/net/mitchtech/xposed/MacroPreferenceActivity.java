@@ -12,11 +12,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.text.Html;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Window;
 import android.webkit.WebView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
@@ -29,7 +28,7 @@ import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
-public class MacroPreferenceActivity extends PreferenceActivity {
+public class MacroPreferenceActivity extends AppCompatActivity {
 
     private static final String TAG = MacroPreferenceActivity.class.getSimpleName();
     private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";
@@ -49,60 +48,94 @@ public class MacroPreferenceActivity extends PreferenceActivity {
         
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        
-        // this is important since settings executed in the context of the hooked package
-        getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
-        addPreferencesFromResource(R.xml.settings);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        
-        mPrefs = getPreferenceScreen().getSharedPreferences();
-        
-        mPrefImportMacros = findPreference("prefImportMacros");
-        mPrefExportMacros = findPreference("prefExportMacros");        
-        mPrefAboutModule = findPreference("prefAboutModule");
-        mPrefAboutXposed = findPreference("prefAboutXposed");
-        mPrefDonatePaypal = findPreference("prefDonatePaypal");
-        mPrefGithub = findPreference("prefGithub");
-        mPrefHelp = findPreference("prefHelp");
-        mPrefChangeLog = findPreference("prefChangeLog");
+//        getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
+//        addPreferencesFromResource(R.xml.settings);
 
-        String version = MacroUtils.getVersion(this);
-        mPrefAboutModule.setTitle(this.getTitle() + version);
-    }
-    
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen prefScreen, Preference pref) {
-        Intent intent = null;
-        
-        if (pref == mPrefImportMacros) {
-            importFormatDialog();
-        } else if (pref == mPrefExportMacros) {
-            exportFormatDialog();
-        } else if (pref == mPrefAboutModule) {
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_xda)));
-        } else if (pref == mPrefAboutXposed) {
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_xposed)));
-        } else if (pref == mPrefDonatePaypal) {
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_paypal)));
-        } else if (pref == mPrefGithub) {
-        } else if (pref == mPrefHelp) {
-        } else if (pref == mPrefChangeLog) {
-            changelogDialog();
+        if (savedInstanceState == null) {
+            getFragmentManager().beginTransaction().add(android.R.id.content, new SettingsFragment()).commit();
         }
-        
-        if (intent != null) {
-            try {
-                startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                e.printStackTrace();
+    }
+
+    public class SettingsFragment extends PreferenceFragment implements
+            SharedPreferences.OnSharedPreferenceChangeListener {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
+            addPreferencesFromResource(R.xml.settings);
+
+            // this is important since settings executed in the context of the hooked package
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
+            addPreferencesFromResource(R.xml.settings);
+//            getActionBar().setDisplayHomeAsUpEnabled(true);
+
+            mPrefs = getPreferenceScreen().getSharedPreferences();
+
+            mPrefImportMacros = findPreference("prefImportMacros");
+            mPrefExportMacros = findPreference("prefExportMacros");
+            mPrefAboutModule = findPreference("prefAboutModule");
+            mPrefAboutXposed = findPreference("prefAboutXposed");
+            mPrefDonatePaypal = findPreference("prefDonatePaypal");
+            mPrefGithub = findPreference("prefGithub");
+            mPrefHelp = findPreference("prefHelp");
+            mPrefChangeLog = findPreference("prefChangeLog");
+
+            String version = MacroUtils.getVersion(MacroPreferenceActivity.this);
+            mPrefAboutModule.setTitle(MacroPreferenceActivity.this.getTitle() + version);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(PreferenceScreen prefScreen, Preference pref) {
+            Intent intent = null;
+
+            if (pref == mPrefImportMacros) {
+                importFormatDialog();
+            } else if (pref == mPrefExportMacros) {
+                exportFormatDialog();
+            } else if (pref == mPrefAboutModule) {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_xda)));
+            } else if (pref == mPrefAboutXposed) {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_xposed)));
+            } else if (pref == mPrefDonatePaypal) {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_paypal)));
+            } else if (pref == mPrefGithub) {
+            } else if (pref == mPrefHelp) {
+            } else if (pref == mPrefChangeLog) {
+                changelogDialog();
             }
-            return true;
+
+            if (intent != null) {
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+            return super.onPreferenceTreeClick(prefScreen, pref);
         }
-        return super.onPreferenceTreeClick(prefScreen, pref);
+
     }
-    
+
     private void importFileChooser(int format) {
         Intent target = FileUtils.createGetContentIntent();
         // target.setType(FileUtils.MIME_TYPE_TEXT);

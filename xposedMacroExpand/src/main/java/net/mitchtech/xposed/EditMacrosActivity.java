@@ -1,13 +1,13 @@
 
 package net.mitchtech.xposed;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,7 +24,7 @@ import net.mitchtech.xposed.macroexpand.R;
 
 import java.util.ArrayList;
 
-public class EditMacrosActivity extends Activity {
+public class EditMacrosActivity extends AppCompatActivity {
 
     private static final String TAG = EditMacrosActivity.class.getSimpleName();
     private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";

@@ -1,93 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-            
-      <PreferenceCategory 
-          android:title="Macro Settings"
-          android:key="prefCatMacroSettings" >
-    
-	      <SwitchPreference
-	          android:defaultValue="true"
-	          android:key="prefMoveCursor"
-	          android:title="Move Cursor"
-	          android:summary="Move cursor to end of text after expansion" />
-	      
-	      <SwitchPreference
-	          android:defaultValue="false"
-	          android:key="prefIgnoreCase"
-	          android:title="Ignore Case"
-	          android:summary="Make macros case insensitive (disregard capitalization)" />
-	      
-	      <SwitchPreference
-	          android:defaultValue="false"
-	          android:key="prefIgnorePassword"
-	          android:title="Ignore Passwords"
-	          android:summary="Don't expand macros in password fields" />
-      
-      </PreferenceCategory>
-      
-      <PreferenceCategory 
-          android:title="Backup/Restore"
-          android:key="prefCatBackupRestore" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-         <Preference
-	          android:key="prefExportMacros"
-	          android:title="Export Macros"
-	          android:summary="Tap to export/backup macro list" />
-      
-	      <Preference
-	          android:key="prefImportMacros"
-	          android:title="Import Macros"
-	          android:summary="Tap to select file to import/restore macros" />      
-		  
-		  <SwitchPreference
-		      android:defaultValue="false"
-	          android:key="prefImportDebug"
-	          android:title="Import Debug"
-	          android:summary="Enable import/restore debug logging" />           
-	      
-	  </PreferenceCategory>
+    <com.jenzz.materialpreference.PreferenceCategory
+        android:key="prefCatMacroSettings"
+        android:title="Macro Settings">
 
-<!--       <PreferenceScreen  -->
-<!--         android:key="prefCatAbout" -->
-<!--         android:title="About Macro Expand" > -->
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="prefMoveCursor"
+            android:summary="Move cursor to end of text after expansion"
+            android:title="Move Cursor" />
 
-      <PreferenceCategory 
-          android:title="About/Support"
-          android:key="prefCatAbout" >
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="prefIgnoreCase"
+            android:summary="Make macros case insensitive (disregard capitalization)"
+            android:title="Ignore Case" />
 
-	        <Preference
-	            android:key="prefAboutModule" 
-	            android:title="Xposed Macro Expand" 
-	            android:summary="Developed by Michael Mitchell &#169; 2014. Tap to visit module support thread on XDA" />
-	        
-	        <Preference
-	            android:key="prefAboutXposed"
-	            android:title="Xposed Framework"
-	            android:summary="Developed by rovo89. Tap to visit official Xposed Framework support thread on XDA" />
-	            
-	        <Preference
-	            android:key="prefDonatePaypal"
-	            android:title="Donate"
-	            android:summary="Support development with a PayPal donation" />
-	
-<!-- 	        <Preference -->
-<!-- 	            android:key="prefGithub" -->
-<!-- 	            android:title="Github" -->
-<!-- 	            android:summary="This module is open source software. Tap to view sources on Github" /> -->
-	        
-	        <Preference
-	            android:key="prefChangeLog"
-	            android:title="View Changelog"
-	            android:summary="" />
-	        
-<!-- 	        <Preference -->
-<!-- 	            android:key="prefHelp" -->
-<!-- 	            android:title="Help" -->
-<!-- 	            android:summary="" /> -->
-	        
-      </PreferenceCategory>
-	        
-<!--     </PreferenceScreen> -->
-      
-      
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="prefIgnorePassword"
+            android:summary="Don't expand macros in password fields"
+            android:title="Ignore Passwords" />
+    </com.jenzz.materialpreference.PreferenceCategory>
+
+    <com.jenzz.materialpreference.PreferenceCategory
+        android:key="prefCatBackupRestore"
+        android:title="Backup/Restore">
+
+        <com.jenzz.materialpreference.Preference
+            android:key="prefExportMacros"
+            android:summary="Tap to export/backup macro list"
+            android:title="Export Macros" />
+
+        <com.jenzz.materialpreference.Preference
+            android:key="prefImportMacros"
+            android:summary="Tap to select file to import/restore macros"
+            android:title="Import Macros" />
+
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="prefImportDebug"
+            android:summary="Enable import/restore debug logging"
+            android:title="Import Debug" />
+    </com.jenzz.materialpreference.PreferenceCategory>
+
+    <!--<PreferenceScreen-->
+    <!--android:key="prefCatAbout"-->
+    <!--android:title="About Macro Expand">-->
+
+    <com.jenzz.materialpreference.PreferenceCategory
+        android:key="prefCatAbout"
+        android:title="About/Support">
+
+        <com.jenzz.materialpreference.Preference
+            android:key="prefAboutModule"
+            android:summary="Developed by Michael Mitchell &#169; 2014. Tap to visit module support thread on XDA"
+            android:title="Xposed Macro Expand" />
+
+        <com.jenzz.materialpreference.Preference
+            android:key="prefAboutXposed"
+            android:summary="Developed by rovo89. Tap to visit official Xposed Framework support thread on XDA"
+            android:title="Xposed Framework" />
+
+        <com.jenzz.materialpreference.Preference
+            android:key="prefDonatePaypal"
+            android:summary="Support development with a PayPal donation"
+            android:title="Donate" />
+
+        <!--<Preference -->
+        <!--android:key="prefGithub" -->
+        <!--android:title="Github" -->
+        <!--android:summary="This module is open source software. Tap to view sources on Github" /> -->
+
+        <com.jenzz.materialpreference.Preference
+            android:key="prefChangeLog"
+            android:summary=""
+            android:title="View Changelog" />
+
+        <!--<Preference-->
+        <!--android:key="prefHelp"-->
+        <!--android:summary=""-->
+        <!--android:title="Help" />-->
+    </com.jenzz.materialpreference.PreferenceCategory>
+    <!--</PreferenceScreen>-->
 </PreferenceScreen>
