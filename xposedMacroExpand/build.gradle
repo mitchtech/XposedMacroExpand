@@ -33,4 +33,11 @@ dependencies {
     compile 'com.afollestad:material-dialogs:0.7.6.0'
     compile 'com.infstory:switch-preference-compat:1.0.0'
     compile 'com.tsengvn:Typekit:1.0.0'
+    compile 'com.getbase:floatingactionbutton:1.9.1'
+    compile('com.mikepenz:materialdrawer:3.1.2@aar') {
+        transitive = true
+    }
+    dependencies {
+        compile 'com.mikepenz:iconics:1.2.1@aar'
+    }
 }

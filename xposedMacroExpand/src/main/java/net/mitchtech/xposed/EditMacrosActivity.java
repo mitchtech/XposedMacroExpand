@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.iconics.typeface.FontAwesome;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import net.mitchtech.xposed.macroexpand.R;
@@ -71,6 +76,16 @@ public class EditMacrosActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 removeMacro(position);
                 return true;
+            }
+        });
+
+        Drawable plus = new IconicsDrawable(this, FontAwesome.Icon.faw_plus).color(Color.WHITE).sizeDp(20);
+        FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add);
+        addButton.setImageDrawable(plus);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addMacro();
             }
         });
     }
