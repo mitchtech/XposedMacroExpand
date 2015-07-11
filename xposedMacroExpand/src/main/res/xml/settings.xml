@@ -28,12 +28,12 @@
         android:key="prefCatBackupRestore"
         android:title="Backup/Restore">
 
-        <com.jenzz.materialpreference.Preference
+        <Preference
             android:key="prefExportMacros"
             android:summary="Tap to export/backup macro list"
             android:title="Export Macros" />
 
-        <com.jenzz.materialpreference.Preference
+        <Preference
             android:key="prefImportMacros"
             android:summary="Tap to select file to import/restore macros"
             android:title="Import Macros" />
@@ -53,17 +53,17 @@
         android:key="prefCatAbout"
         android:title="About/Support">
 
-        <com.jenzz.materialpreference.Preference
+        <Preference
             android:key="prefAboutModule"
             android:summary="Developed by Michael Mitchell &#169; 2014. Tap to visit module support thread on XDA"
             android:title="Xposed Macro Expand" />
 
-        <com.jenzz.materialpreference.Preference
+        <Preference
             android:key="prefAboutXposed"
             android:summary="Developed by rovo89. Tap to visit official Xposed Framework support thread on XDA"
             android:title="Xposed Framework" />
 
-        <com.jenzz.materialpreference.Preference
+        <Preference
             android:key="prefDonatePaypal"
             android:summary="Support development with a PayPal donation"
             android:title="Donate" />
@@ -73,7 +73,7 @@
         <!--android:title="Github" -->
         <!--android:summary="This module is open source software. Tap to view sources on Github" /> -->
 
-        <com.jenzz.materialpreference.Preference
+        <Preference
             android:key="prefChangeLog"
             android:summary=""
             android:title="View Changelog" />

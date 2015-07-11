@@ -19,6 +19,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import net.mitchtech.xposed.macroexpand.R;
 
@@ -133,7 +134,11 @@ public class MacroPreferenceActivity extends AppCompatActivity {
             }
             return super.onPreferenceTreeClick(prefScreen, pref);
         }
+    }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 
     private void importFileChooser(int format) {
