@@ -1,10 +1,8 @@
 
 package net.mitchtech.xposed;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -16,8 +14,10 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -35,9 +35,9 @@ public class MacroPreferenceActivity extends AppCompatActivity {
     private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";
     private static final int FORMAT_AHK = 0;
     private static final int FORMAT_JSON = 1;
-    
+
     private SharedPreferences mPrefs;
-    
+
     private Preference mPrefImportMacros;
     private Preference mPrefExportMacros;
     private Preference mPrefAboutModule;
@@ -46,7 +46,7 @@ public class MacroPreferenceActivity extends AppCompatActivity {
     private Preference mPrefGithub;
     private Preference mPrefHelp;
     private Preference mPrefChangeLog;
-        
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,36 +174,31 @@ public class MacroPreferenceActivity extends AppCompatActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-    
+
     private void importConfirmDialog(final String path, final int format) {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
-        alert.setIcon(R.drawable.ic_launcher).setTitle("Overwrite Macro List?")
-//                .setMessage("Do you want to overwrite your macro list or append imported entries? \n\nThis operation cannot be undone!")
-                  .setMessage("Are you sure you want to overwrite your macro list with imported entries? \n\nThis operation cannot be undone!")
-                  .setPositiveButton("Overwrite", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+        new MaterialDialog.Builder(MacroPreferenceActivity.this)
+                .title("Overwrite Macro List?")
+//                .content("Do you want to overwrite your macro list or append imported entries? \n\nThis operation cannot be undone!")
+                .content("Are you sure you want to overwrite your macro list with imported entries? \n\nThis operation cannot be undone!")
+                .positiveText("Overwrite")
+                .negativeText("Cancel")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
                         // setProgressBarIndeterminateVisibility(true);
                         new ImportMacroListTask(format).execute(path);
                     }
-//                }).setNeutralButton("Append", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int whichButton) {
-//                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    }
-                });
-        alert.show();
+                }).show();
     }
-    
+
     private void importFormatDialog() {
         final CharSequence[] items = {"AutoHotKey", "JSON"};
-        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
-        alert.setIcon(R.drawable.ic_launcher)
-                .setTitle("Select Import Format")
-                .setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-
+        new MaterialDialog.Builder(MacroPreferenceActivity.this)
+                .title("Select Import Format")
+                .items(items)
+                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                         switch (which) {
                             case FORMAT_AHK:
                                 importFileChooser(FORMAT_AHK);
@@ -212,34 +207,33 @@ public class MacroPreferenceActivity extends AppCompatActivity {
                                 importFileChooser(FORMAT_JSON);
                                 break;
                         }
-                        dialog.dismiss();
+                        return true;
                     }
-                });
-        alert.show();
+                }).show();
     }
-    
+
     private void importResultDialog(final String log) {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
-        alert.setIcon(R.drawable.ic_launcher).setTitle("Import Result")
-                .setMessage(log)
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+        new MaterialDialog.Builder(MacroPreferenceActivity.this)
+                .title("Import Result")
+                .content(log)
+                .cancelable(false)
+                .positiveText("OK")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
                         MacroUtils.reloadLauncherActivity(MacroPreferenceActivity.this);
                     }
-                });
-        alert.show();
+                }).show();
     }
-    
+
     private void exportFormatDialog() {
         final CharSequence[] items = {"AutoHotKey", "JSON"};
-        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
-        alert.setIcon(R.drawable.ic_launcher)
-                .setTitle("Select Export Format")
-                .setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-
+        new MaterialDialog.Builder(MacroPreferenceActivity.this)
+                .title("Select Export Format")
+                .items(items)
+                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                         setProgressBarIndeterminateVisibility(true);
                         switch (which) {
                             case FORMAT_AHK:
@@ -251,52 +245,55 @@ public class MacroPreferenceActivity extends AppCompatActivity {
                                 new ExportMacroListTask(FORMAT_JSON).execute();
                                 break;
                         }
-                        dialog.dismiss();
+                        return true;
                     }
-                });
-        alert.show();
+                }).show();
     }
-    
+
     private void exportResultDialog(final String log) {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(MacroPreferenceActivity.this);
-        alert.setIcon(R.drawable.ic_launcher).setTitle("Export Result")
-                .setMessage(log)
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+        new MaterialDialog.Builder(MacroPreferenceActivity.this)
+                .title("Export Result")
+                .content(log)
+                .cancelable(false)
+                .positiveText("OK")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        super.onPositive(dialog);
                     }
-                });
-        alert.show();
+                }).show();
     }
-    
+
     private void changelogDialog() {
-        WebView webView = new WebView (this);
+        WebView webView = new WebView(this);
         webView.loadUrl("file:///android_asset/changelog.html");
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setIcon(R.drawable.ic_launcher).setTitle("Changelog")
-                .setView(webView)
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+        new MaterialDialog.Builder(this)
+        .title("Changelog")
+                .customView(webView, false)
+                .cancelable(false)
+                .positiveText("OK")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        super.onPositive(dialog);
                     }
-                });
-        alert.show();
+                }).show();
     }
-    
+
     class ImportMacroListTask extends AsyncTask<String, Void, String> {
 
         int mFormat;
-        
+
         public ImportMacroListTask(int format) {
             mFormat = format;
         }
-        
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             setProgressBarIndeterminateVisibility(true);
         }
-        
+
         @Override
         protected String doInBackground(String... params) {
             StringBuilder json = new StringBuilder();
@@ -304,7 +301,7 @@ public class MacroPreferenceActivity extends AppCompatActivity {
             String path = params[0];
             ArrayList<MacroEntry> macroList = new ArrayList<MacroEntry>();
             String line;
-            
+
             try {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
                 while ((line = bufferedReader.readLine()) != null) {
@@ -336,20 +333,20 @@ public class MacroPreferenceActivity extends AppCompatActivity {
                     }
                 }
                 bufferedReader.close();
-                         
+
                 if (mFormat == FORMAT_JSON) {
                     macroList = MacroUtils.jsonToMacroArrayList(json.toString());
                 }
-                
+
                 String result;
                 if (macroList.size() > 0) {
-                    result = "Complete. Imported: " + macroList.size() + " macros from " + path; 
-                            // + "\n\nSoft reboot to activate";
-                    MacroUtils.saveMacroList(macroList, mPrefs);                
+                    result = "Complete. Imported: " + macroList.size() + " macros from " + path;
+                    // + "\n\nSoft reboot to activate";
+                    MacroUtils.saveMacroList(macroList, mPrefs);
                 } else {
                     result = "Complete. No macros found in file " + path;
                 }
-                
+
                 if (mPrefs.getBoolean("prefImportDebug", false)) {
                     FileOutputStream fileOutputStream = new FileOutputStream(path + ".log");
                     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
@@ -358,59 +355,59 @@ public class MacroPreferenceActivity extends AppCompatActivity {
                     fileOutputStream.close();
                     result = result + "\n\nDebug log output to " + path + ".log";
                 }
-                
+
                 return result;
-                
+
             } catch (Exception e) {
                 Log.e(TAG, "File import error:", e);
                 return "File import error:" + e;
             }
         }
-        
+
         protected void onPostExecute(String result) {
             setProgressBarIndeterminateVisibility(false);
             final String output = result.toString();
             importResultDialog(output);
         }
     }
-    
+
     class ExportMacroListTask extends AsyncTask<String, Void, String> {
 
         int mFormat;
-        
+
         public ExportMacroListTask(int format) {
             mFormat = format;
         }
-        
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             setProgressBarIndeterminateVisibility(true);
         }
-        
+
         @Override
         protected String doInBackground(String... params) {
             ArrayList<MacroEntry> macroList = MacroUtils.loadMacroList(mPrefs);
-            
-            if (macroList == null || macroList.isEmpty()) { 
+
+            if (macroList == null || macroList.isEmpty()) {
                 return "Macro list empty. No file was exported.";
             }
-            
+
             try {
                 String path = "";
                 FileOutputStream fileOutputStream = null;
                 OutputStreamWriter outputStreamWriter = null;
-                
+
                 switch (mFormat) {
                     case FORMAT_AHK:
                         path = Environment.getExternalStorageDirectory() + "/macros.ahk";
                         fileOutputStream = new FileOutputStream(path);
                         outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-                        for (MacroEntry macro : macroList) {              
+                        for (MacroEntry macro : macroList) {
                             outputStreamWriter.append("::" + macro.actual + "::" + macro.replacement + "\n");
                         }
                         break;
-                        
+
                     case FORMAT_JSON:
                         path = Environment.getExternalStorageDirectory() + "/macros.json";
                         fileOutputStream = new FileOutputStream(path);
@@ -425,13 +422,12 @@ public class MacroPreferenceActivity extends AppCompatActivity {
                 outputStreamWriter.close();
                 fileOutputStream.close();
                 return "Complete. Exported " + macroList.size() + " macros to " + path;
-            } 
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "File export error: ", e);
                 return "File export error: " + e;
             }
         }
-        
+
         protected void onPostExecute(String result) {
             setProgressBarIndeterminateVisibility(false);
             final String output = result.toString();
