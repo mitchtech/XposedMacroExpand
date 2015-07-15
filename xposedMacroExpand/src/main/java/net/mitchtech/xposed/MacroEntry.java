@@ -4,10 +4,7 @@ package net.mitchtech.xposed;
 public class MacroEntry {
     public String actual;
     public String replacement;
-
-    public MacroEntry() {
-        this("actual", "replacement");
-    }
+    public boolean enabled;
 
     public MacroEntry(String actual, String replacement) {
         super();
@@ -22,4 +19,6 @@ public class MacroEntry {
     public String toAhkRow() {
         return "::" + actual + "::" + replacement + "\n";
     }
+
+    public String isEnabled() { return (enabled) ? "Enabled" : "Disabled" ; }
 }

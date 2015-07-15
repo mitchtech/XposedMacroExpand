@@ -15,4 +15,6 @@
         <item name="colorPrimaryDark">@color/material_blue_700</item>
         <item name="colorAccent">@color/material_blue_300</item>
     </style>
+
+    <color name="card_expand_color">@color/colorAccent</color>
 </resources>

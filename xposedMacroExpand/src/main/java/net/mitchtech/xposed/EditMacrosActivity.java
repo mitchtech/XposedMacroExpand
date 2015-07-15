@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.internal.base.BaseCard;
 import it.gmariotti.cardslib.library.view.CardListView;
 
 public class EditMacrosActivity extends AppCompatActivity {
@@ -135,15 +136,17 @@ public class EditMacrosActivity extends AppCompatActivity {
 
     //    private void editMacro(MacroEntry entry, final int position) {
     private void editMacro(final int position) {
-        MacroEntry entry = mMacroList.get(position);
+        MacroEntry entry;
         LayoutInflater factory = LayoutInflater.from(EditMacrosActivity.this);
         final View textEntryView = factory.inflate(R.layout.dialog_edit_macro, null);
         final EditText actual = (EditText) textEntryView.findViewById(R.id.actual);
         final EditText replacement = (EditText) textEntryView.findViewById(R.id.replacement);
         if (position > -1) {
+            entry = mMacroList.get(position);
             actual.setText(entry.actual, TextView.BufferType.EDITABLE);
             replacement.setText(entry.replacement, TextView.BufferType.EDITABLE);
         }
+
         new MaterialDialog.Builder(EditMacrosActivity.this)
                 .title("Define Macro")
                 .customView(textEntryView, true)
@@ -203,6 +206,31 @@ public class EditMacrosActivity extends AppCompatActivity {
         CardHeader header = new CardHeader(this);
 
         header.setTitle(macroEntry.toString());
+        card.setTitle(macroEntry.isEnabled());
+
+        header.setPopupMenu(R.menu.macro, new CardHeader.OnClickCardHeaderPopupMenuListener() {
+            @Override
+            public void onMenuItemClick(BaseCard baseCard, MenuItem menuItem) {
+                int index = mCards.indexOf(baseCard);
+                switch (menuItem.getItemId()) {
+
+                    case R.id.action_enable:
+                        baseCard.setTitle("Disabled");
+                        break;
+
+                    case R.id.action_edit:
+                        editMacro(index);
+                        break;
+
+                    case R.id.action_delete:
+                        removeMacro(index);
+                        break;
+                }
+                mCardArrayAdapter.notifyDataSetChanged();
+            }
+        });
+//        header.setButtonOverflowVisible(true);
+//        header.setButtonExpandVisible(true);
         card.addCardHeader(header);
 
         card.setOnClickListener(new Card.OnCardClickListener() {
