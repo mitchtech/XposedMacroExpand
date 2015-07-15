@@ -4,4 +4,7 @@
     <string name="url_xposed" translatable="false">http://forum.xda-developers.com/xposed/xposed-installer-versions-changelog-t2714053</string>
     <string name="url_github" translatable="false">https://github.com/mitchtech/XposedMacroExpand</string>
     <string name="url_paypal" translatable="false">https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=TCD2DEDBQ8AR6</string>
+    <string name="mailto" translatable="false">mailto:macro@mitchtech.com</string>
+    <string name="market_uri_app" translatable="false">market://details?id=net.mitchtech.ecard</string>
+    <string name="market_uri_mitchtech" translatable="false">market://search?q=pub:\"MitchTech\"</string>
 </resources>

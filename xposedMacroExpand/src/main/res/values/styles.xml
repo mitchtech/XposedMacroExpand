@@ -5,12 +5,12 @@
 -->
 <resources>
     <!--Material Blue-->
-    <style name="AppThemeLight" parent="Theme.AppCompat.Light" >
+    <style name="AppThemeLight" parent="@style/MaterialDrawerTheme.Light.TranslucentStatus" >
         <item name="colorPrimary">@color/material_blue_500</item>
         <item name="colorPrimaryDark">@color/material_blue_700</item>
         <item name="colorAccent">@color/material_blue_300</item>
     </style>
-    <style name="AppThemeDark" parent="Theme.AppCompat" >
+    <style name="AppThemeDark" parent="@style/MaterialDrawerTheme.TranslucentStatus" >
         <item name="colorPrimary">@color/material_blue_500</item>
         <item name="colorPrimaryDark">@color/material_blue_700</item>
         <item name="colorAccent">@color/material_blue_300</item>

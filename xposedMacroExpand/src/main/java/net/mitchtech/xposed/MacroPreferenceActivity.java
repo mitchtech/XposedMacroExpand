@@ -15,11 +15,9 @@ import android.preference.PreferenceScreen;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.tsengvn.typekit.TypekitContextWrapper;
 
 import net.mitchtech.xposed.macroexpand.R;
 
@@ -32,11 +30,8 @@ import java.util.ArrayList;
 public class MacroPreferenceActivity extends AppCompatActivity {
 
     private static final String TAG = MacroPreferenceActivity.class.getSimpleName();
-    private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";
     private static final int FORMAT_AHK = 0;
     private static final int FORMAT_JSON = 1;
-
-    private SharedPreferences mPrefs;
 
     private Preference mPrefImportMacros;
     private Preference mPrefExportMacros;
@@ -47,6 +42,8 @@ public class MacroPreferenceActivity extends AppCompatActivity {
     private Preference mPrefHelp;
     private Preference mPrefChangeLog;
 
+    protected SharedPreferences mPrefs;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +53,8 @@ public class MacroPreferenceActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction().add(android.R.id.content, new SettingsFragment()).commit();
         }
+
+
     }
 
     public class SettingsFragment extends PreferenceFragment implements
@@ -121,7 +120,7 @@ public class MacroPreferenceActivity extends AppCompatActivity {
             } else if (pref == mPrefGithub) {
             } else if (pref == mPrefHelp) {
             } else if (pref == mPrefChangeLog) {
-                changelogDialog();
+//                showChangeLogDialog();
             }
 
             if (intent != null) {
@@ -134,11 +133,6 @@ public class MacroPreferenceActivity extends AppCompatActivity {
             }
             return super.onPreferenceTreeClick(prefScreen, pref);
         }
-    }
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 
     private void importFileChooser(int format) {
@@ -254,22 +248,6 @@ public class MacroPreferenceActivity extends AppCompatActivity {
         new MaterialDialog.Builder(MacroPreferenceActivity.this)
                 .title("Export Result")
                 .content(log)
-                .cancelable(false)
-                .positiveText("OK")
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        super.onPositive(dialog);
-                    }
-                }).show();
-    }
-
-    private void changelogDialog() {
-        WebView webView = new WebView(this);
-        webView.loadUrl("file:///android_asset/changelog.html");
-        new MaterialDialog.Builder(this)
-        .title("Changelog")
-                .customView(webView, false)
                 .cancelable(false)
                 .positiveText("OK")
                 .callback(new MaterialDialog.ButtonCallback() {
