@@ -14,11 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -31,17 +27,23 @@ import net.mitchtech.xposed.macroexpand.R;
 
 import java.util.ArrayList;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.view.CardListView;
+
 public class EditMacrosActivity extends AppCompatActivity {
 
     private static final String TAG = EditMacrosActivity.class.getSimpleName();
     private static final String PKG_NAME = "net.mitchtech.xposed.macroexpand";
     private static final int MACRO_SIZE_WARN = 100;
 
-    private ListView mListview;
+    private CardListView mListView;
     private TextView mListEmptyTextView;
     private ArrayList<MacroEntry> mMacroList;
-    private MacroAdapter mMacroAdapter;
+    private CardArrayAdapter mCardArrayAdapter;
     private SharedPreferences mPrefs;
+    private ArrayList<Card> mCards;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,7 @@ public class EditMacrosActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_macros);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        mListview = (ListView) findViewById(R.id.listview);
+        mListView = (CardListView) findViewById(R.id.listview);
         mListEmptyTextView = (TextView) findViewById(R.id.listEmptyText);
         mMacroList = MacroUtils.loadMacroList(mPrefs);
 
@@ -58,25 +60,15 @@ public class EditMacrosActivity extends AppCompatActivity {
 //            macroListLengthWarningDialog(mMacroList.size());
 //        }
 
-        mMacroAdapter = new MacroAdapter(this, mMacroList);
-        mListview.setAdapter(mMacroAdapter);
-        mListview.setTextFilterEnabled(true);
-        mListview.setOnItemClickListener(new OnItemClickListener() {
+        mCards = new ArrayList<Card>();
+        for (MacroEntry macroEntry : mMacroList) {
+            mCards.add(macroEntryToCard(macroEntry));
+        }
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editMacro((MacroEntry) parent.getItemAtPosition(position), position);
-            }
-        });
-
-        mListview.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                removeMacro(position);
-                return true;
-            }
-        });
+        mCardArrayAdapter = new CardArrayAdapter(this, mCards);
+        if (mListView != null) {
+            mListView.setAdapter(mCardArrayAdapter);
+        }
 
         Drawable plus = new IconicsDrawable(this, FontAwesome.Icon.faw_plus).color(Color.WHITE).sizeDp(20);
         FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add);
@@ -138,17 +130,20 @@ public class EditMacrosActivity extends AppCompatActivity {
     }
 
     private void addMacro() {
-        editMacro(new MacroEntry("", ""), -1);
+        editMacro(-1);
     }
 
-    private void editMacro(MacroEntry entry, final int position) {
+    //    private void editMacro(MacroEntry entry, final int position) {
+    private void editMacro(final int position) {
+        MacroEntry entry = mMacroList.get(position);
         LayoutInflater factory = LayoutInflater.from(EditMacrosActivity.this);
         final View textEntryView = factory.inflate(R.layout.dialog_edit_macro, null);
         final EditText actual = (EditText) textEntryView.findViewById(R.id.actual);
         final EditText replacement = (EditText) textEntryView.findViewById(R.id.replacement);
-        actual.setText(entry.actual, TextView.BufferType.EDITABLE);
-        replacement.setText(entry.replacement, TextView.BufferType.EDITABLE);
-
+        if (position > -1) {
+            actual.setText(entry.actual, TextView.BufferType.EDITABLE);
+            replacement.setText(entry.replacement, TextView.BufferType.EDITABLE);
+        }
         new MaterialDialog.Builder(EditMacrosActivity.this)
                 .title("Define Macro")
                 .customView(textEntryView, true)
@@ -161,11 +156,14 @@ public class EditMacrosActivity extends AppCompatActivity {
                         String replacementText = replacement.getText().toString();
                         // if (isTextRegexFree(actualText)
                         if (position > -1) {
-                            mMacroList.remove(mListview.getItemAtPosition(position));
+                            mMacroList.remove(position);
+                            mCards.remove(position);
                         }
-                        mMacroList.add(new MacroEntry(actualText, replacementText));
+                        MacroEntry macroEntry = new MacroEntry(actualText, replacementText);
+                        mMacroList.add(macroEntry);
+                        mCards.add(macroEntryToCard(macroEntry));
                         mListEmptyTextView.setVisibility(View.GONE);
-                        mMacroAdapter.notifyDataSetChanged();
+                        mCardArrayAdapter.notifyDataSetChanged();
                         MacroUtils.saveMacroList(mMacroList, mPrefs);
                     }
                 }).show();
@@ -180,22 +178,13 @@ public class EditMacrosActivity extends AppCompatActivity {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-                        mMacroList.remove(mListview.getItemAtPosition(position));
+                        mMacroList.remove(position);
+                        mCards.remove(position);
                         if (mMacroList.isEmpty()) {
                             mListEmptyTextView.setVisibility(View.VISIBLE);
                         }
-                        mMacroAdapter.notifyDataSetChanged();
+                        mCardArrayAdapter.notifyDataSetChanged();
                         MacroUtils.saveMacroList(mMacroList, mPrefs);
-                    }
-
-                    @Override
-                    public void onNegative(MaterialDialog dialog) {
-                        // no action
-                    }
-
-                    @Override
-                    public void onNeutral(MaterialDialog dialog) {
-
                     }
                 }).show();
     }
@@ -207,5 +196,31 @@ public class EditMacrosActivity extends AppCompatActivity {
                         + " entries. This is permitted, but performance my degrade as a result")
                 .positiveText("OK")
                 .show();
+    }
+
+    private Card macroEntryToCard(MacroEntry macroEntry) {
+        Card card = new Card(this);
+        CardHeader header = new CardHeader(this);
+
+        header.setTitle(macroEntry.toString());
+        card.addCardHeader(header);
+
+        card.setOnClickListener(new Card.OnCardClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                int index = mCards.indexOf(card);
+                editMacro(index);
+            }
+        });
+
+        card.setOnLongClickListener(new Card.OnLongCardClickListener() {
+            @Override
+            public boolean onLongClick(Card card, View view) {
+                int index = mCards.indexOf(card);
+                removeMacro(index);
+                return true;
+            }
+        });
+        return card;
     }
 }
