@@ -27,7 +27,7 @@ import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
-public class MacroPreferenceActivity extends AppCompatActivity {
+public class MacroPreferenceActivity extends BaseActivity {
 
     private static final String TAG = MacroPreferenceActivity.class.getSimpleName();
     private static final int FORMAT_AHK = 0;
@@ -53,8 +53,6 @@ public class MacroPreferenceActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction().add(android.R.id.content, new SettingsFragment()).commit();
         }
-
-
     }
 
     public class SettingsFragment extends PreferenceFragment implements
@@ -63,9 +61,6 @@ public class MacroPreferenceActivity extends AppCompatActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
-            addPreferencesFromResource(R.xml.settings);
-
             // this is important since settings executed in the context of the hooked package
             getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
             addPreferencesFromResource(R.xml.settings);
