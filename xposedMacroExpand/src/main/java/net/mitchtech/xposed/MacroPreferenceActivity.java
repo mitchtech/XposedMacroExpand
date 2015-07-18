@@ -12,13 +12,14 @@ import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
+import net.mitchtech.utils.AppUtils;
+import net.mitchtech.utils.MacroUtils;
 import net.mitchtech.xposed.macroexpand.R;
 
 import java.io.BufferedReader;
@@ -77,7 +78,7 @@ public class MacroPreferenceActivity extends BaseActivity {
             mPrefHelp = findPreference("prefHelp");
             mPrefChangeLog = findPreference("prefChangeLog");
 
-            String version = MacroUtils.getVersion(MacroPreferenceActivity.this);
+            String version = AppUtils.getVersion(MacroPreferenceActivity.this);
             mPrefAboutModule.setTitle(MacroPreferenceActivity.this.getTitle() + version);
         }
 
@@ -210,7 +211,7 @@ public class MacroPreferenceActivity extends BaseActivity {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-                        MacroUtils.reloadLauncherActivity(MacroPreferenceActivity.this);
+                        AppUtils.reloadLauncherActivity(MacroPreferenceActivity.this);
                     }
                 }).show();
     }

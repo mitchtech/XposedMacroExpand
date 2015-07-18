@@ -1,17 +1,12 @@
 
 package net.mitchtech.xposed;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,8 +14,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.FontAwesome;
-import com.tsengvn.typekit.TypekitContextWrapper;
 
+import net.mitchtech.utils.MacroUtils;
 import net.mitchtech.xposed.macroexpand.R;
 
 import java.util.ArrayList;
