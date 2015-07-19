@@ -1,9 +1,6 @@
 
 package net.mitchtech.xposed;
 
-import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
-
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
@@ -15,7 +12,13 @@ import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
+import net.mitchtech.utils.DateTimeUtils;
 import net.mitchtech.utils.MacroUtils;
+import net.mitchtech.utils.NetworkUtils;
+import net.mitchtech.utils.StorageUtils;
+
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
@@ -24,8 +27,8 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-import java.util.ArrayList;
-import java.util.regex.Pattern;
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
@@ -35,6 +38,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
     private XSharedPreferences prefs;
 
     private ArrayList<MacroEntry> mMacroList;
+    private ArrayList<MacroEntry> mDynamicMacroList;
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
@@ -144,32 +148,100 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
     }
 
     private String replaceText(String actualText) {
-        String replacementText = actualText.toString();
+        String replacementText = actualText;
+
+        // process replacements in user assigned macro list
         if (mMacroList != null && !mMacroList.isEmpty()) {           
-            for (MacroEntry replacement : mMacroList) {
+            for (MacroEntry macroEntry : mMacroList) {
                 if (isEnabled("prefIgnoreCase")) {
                     // "(?i)" used for case insensitive replace
-                    replacementText = replacementText.replaceAll(("(?i)" + Pattern.quote(replacement.actual)),
-                            replacement.replacement);
+                    replacementText = replacementText.replaceAll(("(?i)" + Pattern.quote(macroEntry.actual)),
+                            macroEntry.replacement);
                 } else {
                     // case sensitive replacement
-                    replacementText = replacementText.replaceAll(Pattern.quote(replacement.actual),
-                            replacement.replacement);
+                    replacementText = replacementText.replaceAll(Pattern.quote(macroEntry.actual),
+                            macroEntry.replacement);
                 }
             }
         }
+
+        // process replacements in dynamically generated macro list
+        if (isEnabled("dynamicMacros")) {
+            if (mDynamicMacroList != null && !mDynamicMacroList.isEmpty()) {
+
+                for (MacroEntry macroEntry : mDynamicMacroList) {
+
+                    if (replacementText.contains(macroEntry.actual)) {
+
+                        String dynamicText = "";
+                        switch (Integer.parseInt(macroEntry.replacement)) {
+                            case MacroUtils.MACRO_DATE:
+                                dynamicText = DateTimeUtils.getDate();
+                                break;
+
+                            case MacroUtils.MACRO_TIME:
+                                dynamicText = DateTimeUtils.getCurrentTime();
+                                break;
+
+                            case MacroUtils.MACRO_WEEKDAY:
+                                dynamicText = DateTimeUtils.getDayOfWeek();
+                                break;
+
+                            case MacroUtils.MACRO_MAC_ADDRESS:
+//                                dynamicText = NetworkUtils.getMacAddress();
+                                break;
+
+                            case MacroUtils.MACRO_LAN_IP_ADDRESS:
+//                                dynamicText = NetworkUtils.getIpAddress();
+                                break;
+
+                            case MacroUtils.MACRO_WAN_IP_ADDRESS:
+                                dynamicText = NetworkUtils.getPublicIpAddress();
+                                break;
+
+                            case MacroUtils.MACRO_SSID:
+//                                dynamicText = NetworkUtils.getWifiSsid();
+                                break;
+
+                            case MacroUtils.MACRO_BATTERY_LEVEL:
+//                                dynamicText = PowerUtils.getBatteryLevel();
+                                break;
+
+                            case MacroUtils.MACRO_BATTERY_CHARGING:
+//                                dynamicText = PowerUtils.getBatteryState();
+                                break;
+
+                            case MacroUtils.MACRO_INTERNAL_MB_FREE:
+                                dynamicText = "" + StorageUtils.getInternalAvailableSpace();
+                                break;
+
+                            case MacroUtils.MACRO_EXTERNAL_MB_FREE:
+                                dynamicText = "" + StorageUtils.getExternalAvailableSpace();
+                                break;
+
+                            default:
+                                break;
+                        }
+                        replacementText = replacementText.replaceAll(Pattern.quote(macroEntry.actual),
+                                dynamicText);
+                    }
+                }
+            }
+        }
+
         return replacementText;
     }
 
     private boolean isEnabled(String pkgName) {
         prefs.reload();
-        return prefs.getBoolean(pkgName, false);
+        return prefs.getBoolean(pkgName, true);
     }
 
     private void loadPrefs() {
         prefs = new XSharedPreferences(PKG_NAME);
         prefs.makeWorldReadable();
         mMacroList = MacroUtils.loadMacroList(prefs);
+        mDynamicMacroList = MacroUtils.loadDynamicMacroList(prefs);
         XposedBridge.log(TAG + ": prefs loaded.");
 //        String json = prefs.getString("json", "");
 //        Type type = new TypeToken<List<MacroEntry>>() { }.getType();
