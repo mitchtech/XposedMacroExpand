@@ -15,6 +15,7 @@ import android.widget.TextView;
 import net.mitchtech.utils.DateTimeUtils;
 import net.mitchtech.utils.MacroUtils;
 import net.mitchtech.utils.NetworkUtils;
+import net.mitchtech.utils.PowerUtils;
 import net.mitchtech.utils.StorageUtils;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
     private ArrayList<MacroEntry> mMacroList;
     private ArrayList<MacroEntry> mDynamicMacroList;
+    private Context mContext;
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
@@ -74,6 +76,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
             @Override
             protected void afterHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                 final EditText editText = (EditText) methodHookParam.thisObject;
+                mContext = (Context) methodHookParam.args[0];
 //                if (editText instanceof MultiAutoCompleteTextView) {
 //                    // XposedBridge.log(TAG + ": MultiAutoCompleteTextView");
 //                    return;
@@ -112,7 +115,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        if (isEnabled("prefIgnorePassword") && editText.getInputType() 
+                        if (isEnabled("prefIgnorePassword") && editText.getInputType()
                                 == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
                             // XposedBridge.log(TAG + ": password box & ignore password enabled");
                         } else {
@@ -188,11 +191,11 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                                 break;
 
                             case MacroUtils.MACRO_MAC_ADDRESS:
-//                                dynamicText = NetworkUtils.getMacAddress();
+                                dynamicText = NetworkUtils.getMacAddress(mContext);
                                 break;
 
                             case MacroUtils.MACRO_LAN_IP_ADDRESS:
-//                                dynamicText = NetworkUtils.getIpAddress();
+                                dynamicText = NetworkUtils.getIpAddress(mContext);
                                 break;
 
                             case MacroUtils.MACRO_WAN_IP_ADDRESS:
@@ -200,15 +203,15 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
                                 break;
 
                             case MacroUtils.MACRO_SSID:
-//                                dynamicText = NetworkUtils.getWifiSsid();
+                                dynamicText = NetworkUtils.getWifiSsid(mContext);
                                 break;
 
                             case MacroUtils.MACRO_BATTERY_LEVEL:
-//                                dynamicText = PowerUtils.getBatteryLevel();
+                                dynamicText = "" + PowerUtils.getBatteryLevel(mContext);
                                 break;
 
                             case MacroUtils.MACRO_BATTERY_CHARGING:
-//                                dynamicText = PowerUtils.getBatteryState();
+                                dynamicText = "" + PowerUtils.getBatteryState(mContext);
                                 break;
 
                             case MacroUtils.MACRO_INTERNAL_MB_FREE:
