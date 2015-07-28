@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
@@ -48,12 +49,13 @@ public class MacroPreferenceActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_base);
 //        getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
 //        addPreferencesFromResource(R.xml.settings);
+        initToolbar();
+        initDrawer();
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(android.R.id.content, new SettingsFragment()).commit();
-        }
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit();
     }
 
     public class SettingsFragment extends PreferenceFragment implements

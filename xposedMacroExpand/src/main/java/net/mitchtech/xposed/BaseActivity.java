@@ -75,13 +75,21 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_macros);
-
+//        setContentView(R.layout.activity_base);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    protected void initToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+    }
 
+    protected void initDrawer() {
         mDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(mToolbar)
@@ -116,19 +124,8 @@ public class BaseActivity extends AppCompatActivity {
                     }
                 })
                 .withActionBarDrawerToggle(true)
-                .withSavedInstance(savedInstanceState)
                 .withShowDrawerOnFirstLaunch(true)
                 .build();
-
-        // only set the active selection or active profile if we do not recreate the activity
-        if (savedInstanceState == null) {
-            mDrawer.setSelectionByIdentifier(1, false);
-        }
-    }
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 
     public void performAction(int itemId) {

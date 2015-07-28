@@ -41,6 +41,10 @@ public class EditMacrosActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_macros);
+
+        initToolbar();
+        initDrawer();
 
         mListView = (CardListView) findViewById(R.id.listview);
         mListEmptyTextView = (TextView) findViewById(R.id.listEmptyText);
