@@ -24,17 +24,16 @@ public class DynamicMacroPreferenceActivity extends BaseActivity {
     private Preference mPrefDynamicTimeKeyword;
     private Preference mPrefDynamicWeekdayKeyword;
 
-    protected SharedPreferences mPrefs;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_base);
 //        getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
 //        addPreferencesFromResource(R.xml.settings);
+        initToolbar();
+        initDrawer();
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(android.R.id.content, new SettingsFragment()).commit();
-        }
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit();
     }
 
     public class SettingsFragment extends PreferenceFragment implements
@@ -47,9 +46,7 @@ public class DynamicMacroPreferenceActivity extends BaseActivity {
             getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
             addPreferencesFromResource(R.xml.dynamic_settings);
 //            getActionBar().setDisplayHomeAsUpEnabled(true);
-
-            mPrefs = getPreferenceScreen().getSharedPreferences();
-
+//            mPrefs = getPreferenceScreen().getSharedPreferences();
             mPrefDynamicDateKeyword = findPreference("prefDynamicDateKeyword");
             mPrefDynamicTimeKeyword = findPreference("prefDynamicTimeKeyword");
             mPrefDynamicWeekdayKeyword = findPreference("prefDynamicWeekdayKeyword");

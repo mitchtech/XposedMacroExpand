@@ -93,7 +93,9 @@ public class BaseActivity extends AppCompatActivity {
         mDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(mToolbar)
-//                .withHeader(R.layout.header)
+                .withTranslucentActionBarCompatibility(true)
+                .withCloseOnClick(true)
+                .withAnimateDrawerItems(true)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(MENU_TEXT_ABOUT).withIcon(FontAwesome.Icon.faw_info).withIdentifier(MENU_ABOUT),
                         new PrimaryDrawerItem().withName(MENU_TEXT_HELP).withIcon(FontAwesome.Icon.faw_question).withIdentifier(MENU_HELP),
@@ -159,11 +161,13 @@ public class BaseActivity extends AppCompatActivity {
         } else if (itemId == MENU_PRIVACY) {
         } else if (itemId == MENU_CHANGE_LOG) {
             showChangeLogDialog();
+
         } else if (itemId == MENU_EXIT) {
             this.finish();
         }
 
         if (intent != null) {
+            mDrawer.closeDrawer();
             try {
                 startActivity(intent);
             } catch (ActivityNotFoundException e) {

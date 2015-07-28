@@ -44,8 +44,6 @@ public class MacroPreferenceActivity extends BaseActivity {
     private Preference mPrefHelp;
     private Preference mPrefChangeLog;
 
-    protected SharedPreferences mPrefs;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,9 +66,7 @@ public class MacroPreferenceActivity extends BaseActivity {
             getPreferenceManager().setSharedPreferencesMode(Context.MODE_WORLD_READABLE);
             addPreferencesFromResource(R.xml.settings);
 //            getActionBar().setDisplayHomeAsUpEnabled(true);
-
-            mPrefs = getPreferenceScreen().getSharedPreferences();
-
+//            mPrefs = getPreferenceScreen().getSharedPreferences();
             mPrefImportMacros = findPreference("prefImportMacros");
             mPrefExportMacros = findPreference("prefExportMacros");
             mPrefAboutModule = findPreference("prefAboutModule");
