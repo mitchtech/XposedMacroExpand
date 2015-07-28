@@ -35,6 +35,12 @@
             android:parentActivityName="net.mitchtech.xposed.EditMacrosActivity" />
 
         <activity
+            android:name="net.mitchtech.xposed.MacroPreferenceActivity"
+            android:label="@string/app_name"
+            android:parentActivityName="net.mitchtech.xposed.EditMacrosActivity" />
+
+
+        <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:enabled="@bool/use_activity"
             android:exported="true"

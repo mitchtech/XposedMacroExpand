@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.jenzz.materialpreference.PreferenceCategory
+        android:key="prefCatDynamicMacroSettings"
+        android:title="Dynamic Macro Settings">
+
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="prefEnableDynamicMacros"
+            android:summary="Move cursor to end of text after expansion"
+            android:title="Enable Dynamic Macros" />
+
+    </com.jenzz.materialpreference.PreferenceCategory>
+
+    <com.jenzz.materialpreference.PreferenceCategory
+        android:key="prefCatDateTime"
+        android:title="Date and time macros">
+
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="prefDynamicDate"
+            android:title="Dynamic Date"
+            android:summary="Enable dynamic macro for today's date" />
+
+        <Preference
+            android:key="prefDynamicDateKeyword"
+            android:title="Dynamic Date Keyword"
+            android:dependency="prefDynamicDate"
+            android:summary="Tap to set keyword/phrase for dynamic date" />
+
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="prefDynamicTime"
+            android:title="Dynamic Time"
+            android:summary="Enable dynamic macro for current time" />
+
+        <Preference
+            android:key="prefDynamicTimeKeyword"
+            android:title="Dynamic Time Keyword"
+            android:dependency="prefDynamicTime"
+            android:summary="Tap to set keyword/phrase for dynamic time" />
+
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="prefDynamicWeekday"
+            android:title="Dynamic Weekday"
+            android:summary="Enable dynamic macro for current day of the week" />
+
+        <Preference
+            android:key="prefDynamicWeekdayKeyword"
+            android:title="Dynamic Weekday Keyword"
+            android:dependency="prefDynamicWeekday"
+            android:summary="Tap to set keyword/phrase for dynamic day of the week" />
+
+    </com.jenzz.materialpreference.PreferenceCategory>
+
+</PreferenceScreen>
