@@ -50,6 +50,7 @@ public class BaseActivity extends AppCompatActivity {
     public static final int MENU_PRIVACY = Menu.FIRST + 14;
     public static final int MENU_CHANGE_LOG = Menu.FIRST + 15;
     public static final int MENU_EXIT = Menu.FIRST + 16;
+    public static final int MENU_DYNAMIC_MACROS = Menu.FIRST + 20;
 
     public static final String MENU_TEXT_ABOUT = "About";
     public static final String MENU_TEXT_HELP = "Help";
@@ -67,6 +68,7 @@ public class BaseActivity extends AppCompatActivity {
     public static final String MENU_TEXT_PRIVACY = "Privacy Policy";
     public static final String MENU_TEXT_CHANGE_LOG = "Change Log";
     public static final String MENU_TEXT_EXIT = "Exit";
+    public static final String MENU_TEXT_DYNAMIC_MACROS = "Dynamic Macros";
 
     protected SharedPreferences mPrefs;
     protected static Drawer mDrawer = null;
@@ -96,12 +98,14 @@ public class BaseActivity extends AppCompatActivity {
                 .withTranslucentActionBarCompatibility(true)
                 .withCloseOnClick(true)
                 .withAnimateDrawerItems(true)
+                .withSelectedItem(-1)
                 .addDrawerItems(
+                        new PrimaryDrawerItem().withName(MENU_TEXT_DYNAMIC_MACROS).withIcon(FontAwesome.Icon.faw_android).withIdentifier(MENU_DYNAMIC_MACROS),
+                        new PrimaryDrawerItem().withName(MENU_TEXT_SETTINGS).withIcon(FontAwesome.Icon.faw_gear).withIdentifier(MENU_SETTINGS),
                         new PrimaryDrawerItem().withName(MENU_TEXT_ABOUT).withIcon(FontAwesome.Icon.faw_info).withIdentifier(MENU_ABOUT),
                         new PrimaryDrawerItem().withName(MENU_TEXT_HELP).withIcon(FontAwesome.Icon.faw_question).withIdentifier(MENU_HELP),
-                        new PrimaryDrawerItem().withName(MENU_TEXT_SETTINGS).withIcon(FontAwesome.Icon.faw_gear).withIdentifier(MENU_SETTINGS),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName(MENU_TEXT_THEME).withIcon(FontAwesome.Icon.faw_cog).withIdentifier(MENU_THEME),
+                        new SecondaryDrawerItem().withName(MENU_TEXT_THEME).withIcon(FontAwesome.Icon.faw_paint_brush).withIdentifier(MENU_THEME),
                         new SecondaryDrawerItem().withName(MENU_TEXT_UPGRADE).withIcon(FontAwesome.Icon.faw_shopping_cart).withIdentifier(MENU_UPGRADE),
                         new SecondaryDrawerItem().withName(MENU_TEXT_DONATE).withIcon(FontAwesome.Icon.faw_dollar).withIdentifier(MENU_DONATE),
                         new SecondaryDrawerItem().withName(MENU_TEXT_SHARE).withIcon(FontAwesome.Icon.faw_share).withIdentifier(MENU_SHARE),
@@ -135,6 +139,8 @@ public class BaseActivity extends AppCompatActivity {
         Intent intent = null;
         if (itemId == MENU_ABOUT) {
         } else if (itemId == MENU_HELP) {
+        } else if (itemId == MENU_DYNAMIC_MACROS) {
+            intent = new Intent(this, DynamicMacroPreferenceActivity.class);
         } else if (itemId == MENU_SETTINGS) {
             intent = new Intent(this, MacroPreferenceActivity.class);
         } else if (itemId == MENU_THEME) {
@@ -161,13 +167,15 @@ public class BaseActivity extends AppCompatActivity {
         } else if (itemId == MENU_PRIVACY) {
         } else if (itemId == MENU_CHANGE_LOG) {
             showChangeLogDialog();
-
         } else if (itemId == MENU_EXIT) {
             this.finish();
         }
 
+//        mDrawer.resetDrawerContent();
+//        mDrawer.closeDrawer();
+//        mDrawer.setSelection(-1);
+
         if (intent != null) {
-            mDrawer.closeDrawer();
             try {
                 startActivity(intent);
             } catch (ActivityNotFoundException e) {

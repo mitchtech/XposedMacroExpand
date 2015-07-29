@@ -79,12 +79,14 @@ public class MacroUtils {
 
     public static ArrayList<MacroEntry> loadDynamicMacroList(SharedPreferences prefs) {
         ArrayList<MacroEntry> macroList = new ArrayList<MacroEntry>();
-        if (prefs.getBoolean(MACRO_DATE_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_DATE_TEXT, "" + MACRO_DATE));
-        if (prefs.getBoolean(MACRO_TIME_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_TIME_TEXT, "" + MACRO_TIME));
-        if (prefs.getBoolean(MACRO_WEEKDAY_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_WEEKDAY_TEXT, "" + MACRO_WEEKDAY));
+
+        if (prefs.getBoolean("prefDynamicDate", false))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicDateKeyword", MACRO_DATE_TEXT), "" + MACRO_DATE));
+        if (prefs.getBoolean("prefDynamicTime", false))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicTimeKeyword", MACRO_TIME_TEXT), "" + MACRO_TIME));
+        if (prefs.getBoolean("prefDynamicWeekday", false))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicWeekdayKeyword", MACRO_WEEKDAY_TEXT), "" + MACRO_WEEKDAY));
+
         if (prefs.getBoolean(MACRO_MAC_ADDRESS_TEXT, true))
             macroList.add(new MacroEntry(MACRO_MAC_ADDRESS_TEXT, "" + MACRO_MAC_ADDRESS));
         if (prefs.getBoolean(MACRO_LAN_IP_ADDRESS_TEXT, true))
@@ -93,10 +95,12 @@ public class MacroUtils {
             macroList.add(new MacroEntry(MACRO_WAN_IP_ADDRESS_TEXT, "" + MACRO_WAN_IP_ADDRESS));
         if (prefs.getBoolean(MACRO_SSID_TEXT, true))
             macroList.add(new MacroEntry(MACRO_SSID_TEXT, "" + MACRO_SSID));
-        if (prefs.getBoolean(MACRO_BATTERY_LEVEL_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_BATTERY_LEVEL_TEXT, "" + MACRO_BATTERY_LEVEL));
-        if (prefs.getBoolean(MACRO_BATTERY_CHARGING_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_BATTERY_CHARGING_TEXT, "" + MACRO_BATTERY_CHARGING));
+
+        if (prefs.getBoolean("prefDynamicBatteryLevel", false))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicBatteryLevelKeyword", MACRO_BATTERY_LEVEL_TEXT), "" + MACRO_BATTERY_LEVEL));
+        if (prefs.getBoolean("prefDynamicBatteryState", false))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicBatteryStateKeyword", MACRO_BATTERY_CHARGING_TEXT), "" + MACRO_BATTERY_CHARGING));
+
         if (prefs.getBoolean(MACRO_INTERNAL_MB_FREE_TEXT, true))
             macroList.add(new MacroEntry(MACRO_INTERNAL_MB_FREE_TEXT, "" + MACRO_INTERNAL_MB_FREE));
         if (prefs.getBoolean(MACRO_EXTERNAL_MB_FREE_TEXT, true))

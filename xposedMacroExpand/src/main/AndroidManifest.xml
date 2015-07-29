@@ -35,7 +35,7 @@
             android:parentActivityName="net.mitchtech.xposed.EditMacrosActivity" />
 
         <activity
-            android:name="net.mitchtech.xposed.MacroPreferenceActivity"
+            android:name="net.mitchtech.xposed.DynamicMacroPreferenceActivity"
             android:label="@string/app_name"
             android:parentActivityName="net.mitchtech.xposed.EditMacrosActivity" />
 

@@ -169,7 +169,7 @@ public class XposedMacroExpand implements IXposedHookLoadPackage, IXposedHookZyg
         }
 
         // process replacements in dynamically generated macro list
-        if (isEnabled("dynamicMacros")) {
+        if (isEnabled("prefEnableDynamicMacros")) {
             if (mDynamicMacroList != null && !mDynamicMacroList.isEmpty()) {
 
                 for (MacroEntry macroEntry : mDynamicMacroList) {
