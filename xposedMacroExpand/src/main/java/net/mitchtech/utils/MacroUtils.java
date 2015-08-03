@@ -101,10 +101,10 @@ public class MacroUtils {
         if (prefs.getBoolean("prefDynamicBatteryState", false))
             macroList.add(new MacroEntry(prefs.getString("prefDynamicBatteryStateKeyword", MACRO_BATTERY_CHARGING_TEXT), "" + MACRO_BATTERY_CHARGING));
 
-        if (prefs.getBoolean(MACRO_INTERNAL_MB_FREE_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_INTERNAL_MB_FREE_TEXT, "" + MACRO_INTERNAL_MB_FREE));
-        if (prefs.getBoolean(MACRO_EXTERNAL_MB_FREE_TEXT, true))
-            macroList.add(new MacroEntry(MACRO_EXTERNAL_MB_FREE_TEXT, "" + MACRO_EXTERNAL_MB_FREE));
+        if (prefs.getBoolean("prefDynamicIntStorage", true))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicIntStorageKeyword", MACRO_INTERNAL_MB_FREE_TEXT), "" + MACRO_INTERNAL_MB_FREE));
+        if (prefs.getBoolean("prefDynamicExtStorage", true))
+            macroList.add(new MacroEntry(prefs.getString("prefDynamicExtStorageStorage", MACRO_EXTERNAL_MB_FREE_TEXT), "" + MACRO_EXTERNAL_MB_FREE));
         return macroList;
     }
     

@@ -24,6 +24,13 @@ public class DynamicMacroPreferenceActivity extends BaseActivity {
     private Preference mPrefDynamicTimeKeyword;
     private Preference mPrefDynamicWeekdayKeyword;
 
+    private Preference mPrefDynamicBatteryLevelKeyword;
+    private Preference mPrefDynamicBatteryStateKeyword;
+
+    private Preference mPrefDynamicIntStorageKeyword;
+    private Preference mPrefDynamicExtStorageKeyword;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +57,12 @@ public class DynamicMacroPreferenceActivity extends BaseActivity {
             mPrefDynamicDateKeyword = findPreference("prefDynamicDateKeyword");
             mPrefDynamicTimeKeyword = findPreference("prefDynamicTimeKeyword");
             mPrefDynamicWeekdayKeyword = findPreference("prefDynamicWeekdayKeyword");
+
+            mPrefDynamicBatteryLevelKeyword = findPreference("prefDynamicBatteryLevel");
+            mPrefDynamicBatteryStateKeyword = findPreference("prefDynamicBatteryState");
+
+            mPrefDynamicIntStorageKeyword = findPreference("prefDynamicIntStorage");
+            mPrefDynamicExtStorageKeyword = findPreference("prefDynamicExtStorage");
         }
 
         @Override

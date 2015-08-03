@@ -102,6 +102,29 @@
         android:key="prefCatStorage"
         android:title="Storage macros">
 
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:dependency="prefEnableDynamicMacros"
+            android:defaultValue="false"
+            android:key="prefDynamicIntStorage"
+            android:summary="Enable dynamic macro for available internal storage space"
+            android:title="Internal Storage Free" />
+        <Preference
+            android:dependency="prefDynamicIntStorage"
+            android:key="prefDynamicIntStorageKeyword"
+            android:title="Set Internal Storage Free Keyword" />
+
+
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:dependency="prefEnableDynamicMacros"
+            android:defaultValue="false"
+            android:key="prefDynamicExtStorage"
+            android:summary="Enable dynamic macro for available external storage space"
+            android:title="External Storage Free" />
+        <Preference
+            android:dependency="prefDynamicExtStorage"
+            android:key="prefDynamicExtStorageKeyword"
+            android:title="Set External Storage Free Keyword" />
+
     </com.jenzz.materialpreference.PreferenceCategory>
 
 
